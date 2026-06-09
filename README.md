@@ -1,2 +1,2 @@
 # bgLocalizeJava
-Localisation à partir d'image : POC en java destiné à être porté en cpp
+Localisation à partir d'images : POC en java/opencv destiné à être porté en cpp

@@ -9,6 +9,8 @@ import org.opencv.core.Core;
 
 import nu.pattern.OpenCV;
 
+
+
 /**
  * Unit test for OpenCV dependencies.
  */
