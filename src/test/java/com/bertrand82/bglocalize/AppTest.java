@@ -1,19 +1,21 @@
 package com.bertrand82.bglocalize;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
+import org.opencv.core.Core;
+
+import nu.pattern.OpenCV;
 
 /**
- * Unit test for simple App.
+ * Unit test for OpenCV dependencies.
  */
 public class AppTest {
 
-    /**
-     * Rigorous Test :-)
-     */
     @Test
-    public void shouldAnswerWithTrue() {
-        assertTrue(true);
+    public void shouldLoadOpenCvDependencies() {
+        assertDoesNotThrow(OpenCV::loadLocally);
+        assertFalse(Core.getVersionString().isBlank());
     }
 }
