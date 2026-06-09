@@ -17,7 +17,7 @@ public class AppTest {
     @Test
     public void shouldLoadOpenCvDependencies() {
         assertDoesNotThrow(OpenCV::loadLocally);
-        assertEquals("4.9.0", Core.VERSION);
+        assertEquals(System.getProperty("opencv.core.version"), Core.VERSION);
         assertFalse(Core.getVersionString().isBlank());
     }
 }

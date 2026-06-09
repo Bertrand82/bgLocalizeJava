@@ -14,6 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
+    <opencv.core.version>4.9.0</opencv.core.version>
     <opencv.version>4.9.0-0</opencv.version>
   </properties>
 
@@ -68,6 +69,11 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.3.0</version>
+          <configuration>
+            <systemPropertyVariables>
+              <opencv.core.version>${opencv.core.version}</opencv.core.version>
+            </systemPropertyVariables>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
