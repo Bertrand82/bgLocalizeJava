@@ -13,8 +13,11 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
-    <opencv.core.version>4.9.0</opencv.core.version>
-    <opencv.version>4.9.0-0</opencv.version>
+    <opencv.core.version>4.14.0</opencv.core.version>
+    <opencv.version>4.14.0</opencv.version>
+    
+    <opencv.dll.path>C:/Users/bertr/workspace_c/opencv/build/lib/Release;C:/Users/bertr/workspace_c/opencv/build/bin/Release</opencv.dll.path>
+
   </properties>
 
   <dependencyManagement>
@@ -30,17 +33,19 @@
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>org.openpnp</groupId>
-      <artifactId>opencv</artifactId>
-      <version>${opencv.version}</version>
-    </dependency>
+<dependency>
+  <groupId>org.opencv</groupId>
+  <artifactId>opencv</artifactId>
+  <version>5.0.0</version>
+  <scope>system</scope>
+  <systemPath>C:/Program Files/opencv/build/java/opencv-500.jar</systemPath>
+</dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Optionally: parameterized tests support -->
+		<!-- Optionally: parameterized tests support -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
