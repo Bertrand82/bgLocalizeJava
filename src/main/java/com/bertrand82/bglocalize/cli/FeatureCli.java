@@ -39,16 +39,20 @@ public final class FeatureCli {
 
             FeatureExtractionResult result = new OpenCvFeatureExtractor()
                     .extract(options.imagePath(), options.algorithm());
-
-            out.println("imagePath=" + result.getImagePath());
-            out.println("imageId=" + result.getImageId());
-            out.println("algorithm=" + result.getAlgorithm());
-            out.println("dimensions=" + result.getWidth() + "x" + result.getHeight());
-            out.println("keypoints=" + result.getKeypointCount());
-            out.println("descriptorType=" + result.getDescriptorMatType());
-            out.println("descriptorTypeName=" + CvType.typeToString(result.getDescriptorMatType()));
-            out.println("descriptorRows=" + result.getDescriptors().rows());
-            out.println("descriptorCols=" + result.getDescriptors().cols());
+            try {
+                out.println("imagePath=" + result.getImagePath());
+                out.println("imageId=" + result.getImageId());
+                out.println("algorithm=" + result.getAlgorithm());
+                out.println("dimensions=" + result.getWidth() + "x" + result.getHeight());
+                out.println("keypoints=" + result.getKeypointCount());
+                out.println("descriptorType=" + result.getDescriptorMatType());
+                out.println("descriptorTypeName=" + CvType.typeToString(result.getDescriptorMatType()));
+                out.println("descriptorRows=" + result.getDescriptors().rows());
+                out.println("descriptorCols=" + result.getDescriptors().cols());
+            } finally {
+                result.getKeypoints().release();
+                result.getDescriptors().release();
+            }
             return 0;
         } catch (IllegalArgumentException e) {
             err.println(e.getMessage());

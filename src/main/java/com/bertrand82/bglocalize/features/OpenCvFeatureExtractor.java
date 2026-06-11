@@ -35,13 +35,14 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
         Objects.requireNonNull(algorithm, "algorithm must not be null");
         OpenCvInitializer.initialize();
 
-        Feature2D extractor = algorithm.createExtractor();
         MatOfKeyPoint keypoints = new MatOfKeyPoint();
         Mat descriptors = new Mat();
         Mat grayscale = new Mat();
         Mat mask = new Mat();
+        Feature2D extractor = null;
 
         try {
+            extractor = algorithm.createExtractor();
             Mat sourceImage = image.getImage();
             if (sourceImage.channels() > 1) {
                 Imgproc.cvtColor(sourceImage, grayscale, Imgproc.COLOR_BGR2GRAY);
@@ -59,6 +60,9 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
                     keypoints,
                     descriptors);
         } finally {
+            if (extractor != null) {
+                extractor.clear();
+            }
             mask.release();
             grayscale.release();
         }
