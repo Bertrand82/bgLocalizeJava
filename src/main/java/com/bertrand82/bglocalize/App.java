@@ -1,10 +1,13 @@
 package com.bertrand82.bglocalize;
 
-/**
- * Hello world!
- */
-public class App {
+import com.bertrand82.bglocalize.cli.FeatureCli;
+
+public final class App {
+
+    private App() {
+    }
+
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        FeatureCli.main(args);
     }
 }

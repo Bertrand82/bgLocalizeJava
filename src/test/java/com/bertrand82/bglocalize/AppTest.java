@@ -1,67 +1,111 @@
 package com.bertrand82.bglocalize;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.opencv.core.Core;
-import org.opencv.osgi.OpenCVNativeLoader;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import com.bertrand82.bglocalize.cli.FeatureCli;
+import com.bertrand82.bglocalize.features.FeatureAlgorithm;
+import com.bertrand82.bglocalize.features.FeatureExtractionResult;
+import com.bertrand82.bglocalize.features.OpenCvFeatureExtractor;
+import com.bertrand82.bglocalize.image.FilesystemImageLoader;
+import com.bertrand82.bglocalize.image.LoadedImage;
+import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
+//import com.bertrand82.util.UtilImage;
 
-
-/**
- * Unit test for OpenCV dependencies.
- */
-public class AppTest {
+class AppTest {
 	
-	
-	public AppTest() {
-		try {
-			File dirOpenCV = new File("C:\\Users\\bertr\\workspace_c\\opencv");
-			File dirOpenCVBuild = new File(dirOpenCV,"build");
-			File dirOpenCVBuildLibRelease =  new File(dirOpenCVBuild,"lib\\release");
-			File dirOpenCVBuildBinRelease =  new File(dirOpenCVBuild,"bin\\release");
-			System.err.println("dirOpenCVBuild           exists "+dirOpenCVBuild.exists()+"  "+dirOpenCVBuild.getAbsolutePath());
-			System.err.println("dirOpenCVBuildLibRelease exists "+dirOpenCVBuildLibRelease.exists()+"  "+dirOpenCVBuildLibRelease.getAbsolutePath());
-			System.err.println("dirOpenCVBuildBinRelease exists "+dirOpenCVBuildBinRelease.exists()+"  "+dirOpenCVBuildBinRelease.getAbsolutePath());
-			File dirOpencvX64=new File(dirOpenCVBuild,"x64");
-			System.err.println("dirOpencvX64Bin exists "+dirOpencvX64.exists()+"  "+dirOpencvX64.getAbsolutePath());
-			File[] binDllFiles = dirOpenCVBuildBinRelease.listFiles((dir, name) -> name.toLowerCase().endsWith(".dll"));
-			System.err.println("Core.NATIVE_LIBRARY_NAME : "+Core.NATIVE_LIBRARY_NAME);
-			System.err.println("getProperties" +System.getProperties());
-			//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-			for(File f : binDllFiles) {
-            	System.err.println("fdll   "+f.getName());
-            	//System.load(f.getAbsolutePath());
-            }
-			File[] libDllFiles = dirOpenCVBuildLibRelease.listFiles((dir, name) -> name.toLowerCase().endsWith(".dll"));
-            for(File fLibDll : libDllFiles) {
-            	System.err.println("fLibDll   "+fLibDll.getAbsolutePath());
-            //	System.load(fLibDll.getAbsolutePath());
-            }
-			
-			System.load("C:\\Users\\bertr\\workspace_c\\opencv\\build\\x64\\vc17\\bin\\opencv_core4140.dll");
-			//System.load("C:\\Users\\bertr\\workspace_c\\opencv\\build\\x64\\vc17\\bin\\opencv_imgcodecs4140.dll");
-			//System.load("C:\\Users\\bertr\\workspace_c\\opencv\\build\\x64\\vc17\\bin\\opencv_videoio4140.dll");
-			//System.load("C:\\Users\\bertr\\workspace_c\\opencv\\build\\java\\opencv_java4140.dll");
-			//System.out.println("OpenCV version = " + Core.VERSION);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	static File dirTarget = new File("target");
+	static File imageTest = new File("data","BG.jpg");
 
-
+    @BeforeAll
+    static void initializeOpenCv() {
+        OpenCvInitializer.initialize();
+        System.out.println("bg initializeOpenCv done");
+    }
 
     @Test
-    public void shouldLoadOpenCvDependencies() {
-      
-    	System.err.println("VERSION : "+Core.VERSION);
-        assertNotNull( Core.VERSION);
-     
+    void shouldLoadImageFromFilesystem() throws IOException {
+    	File fileImage = new File(dirTarget, "sample.png");
+        Path imagePath = getImageTest();
+
+        LoadedImage loadedImage = new FilesystemImageLoader().load(imagePath.toString());
+
+        try {
+            assertEquals(imagePath.toAbsolutePath().toString(), loadedImage.getImagePath());
+            assertEquals("sample.png", loadedImage.getImageId());
+            assertEquals(320, loadedImage.getWidth());
+            assertEquals(240, loadedImage.getHeight());
+            assertFalse(loadedImage.getImage().empty());
+        } finally {
+            loadedImage.getImage().release();
+        }
+        System.out.println("bg shouldLoadImageFromFilesystem  done "+fileImage.getAbsolutePath());
     }
+
+    private Path getImageTest() {
+		
+		return imageTest.toPath();
+	}
+
+	@ParameterizedTest
+    @MethodSource("algorithms")
+    void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
+    	File fileImage = new File(dirTarget,"image_"+algorithm.name().toLowerCase() + ".png");
+        Path imagePath = getImageTest();
+
+        FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
+
+        try {
+            assertEquals(imagePath.toAbsolutePath().toString(), result.getImagePath());
+            assertEquals(imagePath.getFileName().toString(), result.getImageId());
+            assertEquals(algorithm, result.getAlgorithm());
+            assertEquals(320, result.getWidth());
+            assertEquals(240, result.getHeight());
+            assertTrue(result.getKeypointCount() > 0);
+            assertFalse(result.getKeypoints().empty());
+            assertFalse(result.getDescriptors().empty());
+            assertEquals(result.getKeypointCount(), result.getDescriptors().rows());
+            assertEquals(result.getDescriptorMatType(), result.getDescriptors().type());
+        } finally {
+            result.getKeypoints().release();
+            result.getDescriptors().release();
+        }
+    }
+
+    @Test
+    void shouldRunCli(@TempDir Path tempDir) throws IOException {
+        Path imagePath =getImageTest();
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        int exitCode = FeatureCli.run(
+                new String[] { "--image", imagePath.toString(), "--algorithm", "SIFT" },
+                new PrintStream(stdout),
+                new PrintStream(stderr));
+
+        assertEquals(0, exitCode);
+        assertTrue(stderr.toString().isBlank());
+        assertTrue(stdout.toString().contains("algorithm=SIFT"));
+        assertTrue(stdout.toString().contains("keypoints="));
+    }
+
+    private static Stream<FeatureAlgorithm> algorithms() {
+        return Stream.of(FeatureAlgorithm.ORB, FeatureAlgorithm.SIFT, FeatureAlgorithm.AKAZE, FeatureAlgorithm.BRISK);
+    }
+
+    
 }
