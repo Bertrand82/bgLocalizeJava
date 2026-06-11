@@ -4,18 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-
-import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,11 +24,12 @@ import com.bertrand82.bglocalize.features.OpenCvFeatureExtractor;
 import com.bertrand82.bglocalize.image.FilesystemImageLoader;
 import com.bertrand82.bglocalize.image.LoadedImage;
 import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
-import com.bertrand82.util.UtilImage;
+//import com.bertrand82.util.UtilImage;
 
 class AppTest {
 	
 	static File dirTarget = new File("target");
+	static File imageTest = new File("data","BG.jpg");
 
     @BeforeAll
     static void initializeOpenCv() {
@@ -45,7 +40,7 @@ class AppTest {
     @Test
     void shouldLoadImageFromFilesystem() throws IOException {
     	File fileImage = new File(dirTarget, "sample.png");
-        Path imagePath =UtilImage. createTexturedImage(fileImage.toPath());
+        Path imagePath = getImageTest();
 
         LoadedImage loadedImage = new FilesystemImageLoader().load(imagePath.toString());
 
@@ -61,11 +56,16 @@ class AppTest {
         System.out.println("bg shouldLoadImageFromFilesystem  done "+fileImage.getAbsolutePath());
     }
 
-    @ParameterizedTest
+    private Path getImageTest() {
+		
+		return imageTest.toPath();
+	}
+
+	@ParameterizedTest
     @MethodSource("algorithms")
     void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
     	File fileImage = new File(dirTarget,"image_"+algorithm.name().toLowerCase() + ".png");
-        Path imagePath = UtilImage.createTexturedImage(fileImage);
+        Path imagePath = getImageTest();
 
         FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
 
@@ -88,7 +88,7 @@ class AppTest {
 
     @Test
     void shouldRunCli(@TempDir Path tempDir) throws IOException {
-        Path imagePath =UtilImage. createTexturedImage(tempDir.resolve("cli.png"));
+        Path imagePath =getImageTest();
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
