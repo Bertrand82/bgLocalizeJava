@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -29,17 +30,22 @@ import com.bertrand82.bglocalize.features.OpenCvFeatureExtractor;
 import com.bertrand82.bglocalize.image.FilesystemImageLoader;
 import com.bertrand82.bglocalize.image.LoadedImage;
 import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
+import com.bertrand82.util.UtilImage;
 
 class AppTest {
+	
+	static File dirTarget = new File("target");
 
     @BeforeAll
     static void initializeOpenCv() {
         OpenCvInitializer.initialize();
+        System.out.println("bg initializeOpenCv done");
     }
 
     @Test
-    void shouldLoadImageFromFilesystem(@TempDir Path tempDir) throws IOException {
-        Path imagePath = createTexturedImage(tempDir.resolve("sample.png"));
+    void shouldLoadImageFromFilesystem() throws IOException {
+    	File fileImage = new File(dirTarget, "sample.png");
+        Path imagePath =UtilImage. createTexturedImage(fileImage.toPath());
 
         LoadedImage loadedImage = new FilesystemImageLoader().load(imagePath.toString());
 
@@ -52,12 +58,14 @@ class AppTest {
         } finally {
             loadedImage.getImage().release();
         }
+        System.out.println("bg shouldLoadImageFromFilesystem  done "+fileImage.getAbsolutePath());
     }
 
     @ParameterizedTest
     @MethodSource("algorithms")
     void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
-        Path imagePath = createTexturedImage(tempDir.resolve(algorithm.name().toLowerCase() + ".png"));
+    	File fileImage = new File(dirTarget,"image_"+algorithm.name().toLowerCase() + ".png");
+        Path imagePath = UtilImage.createTexturedImage(fileImage);
 
         FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
 
@@ -80,7 +88,7 @@ class AppTest {
 
     @Test
     void shouldRunCli(@TempDir Path tempDir) throws IOException {
-        Path imagePath = createTexturedImage(tempDir.resolve("cli.png"));
+        Path imagePath =UtilImage. createTexturedImage(tempDir.resolve("cli.png"));
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
@@ -99,31 +107,5 @@ class AppTest {
         return Stream.of(FeatureAlgorithm.ORB, FeatureAlgorithm.SIFT, FeatureAlgorithm.AKAZE, FeatureAlgorithm.BRISK);
     }
 
-    private static Path createTexturedImage(Path imagePath) throws IOException {
-        BufferedImage image = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = image.createGraphics();
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
-        graphics.setColor(Color.BLACK);
-        graphics.setStroke(new BasicStroke(3f));
-        graphics.drawRect(20, 20, 280, 180);
-        graphics.drawLine(20, 20, 300, 200);
-        graphics.drawLine(300, 20, 20, 200);
-        graphics.setColor(Color.BLUE);
-        graphics.fillOval(40, 40, 60, 60);
-        graphics.setColor(Color.RED);
-        graphics.fillOval(220, 120, 50, 50);
-        graphics.setColor(Color.DARK_GRAY);
-        graphics.drawString("bgLocalize", 110, 110);
-        graphics.setColor(Color.GREEN);
-        for (int x = 0; x < image.getWidth(); x += 20) {
-            graphics.drawLine(x, 0, x, image.getHeight());
-        }
-        for (int y = 0; y < image.getHeight(); y += 20) {
-            graphics.drawLine(0, y, image.getWidth(), y);
-        }
-        graphics.dispose();
-        ImageIO.write(image, "png", imagePath.toFile());
-        return imagePath;
-    }
+    
 }
