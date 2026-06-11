@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize.opencv;
+package com.bg.bglocalize.opencv;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

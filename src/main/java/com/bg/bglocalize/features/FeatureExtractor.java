@@ -1,6 +1,6 @@
-package com.bertrand82.bglocalize.features;
+package com.bg.bglocalize.features;
 
-import com.bertrand82.bglocalize.image.LoadedImage;
+import com.bg.bglocalize.image.LoadedImage;
 
 public interface FeatureExtractor {
 

@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize;
+package com.bg.bglocalize;
 
 import java.io.File;
 import java.net.URL;

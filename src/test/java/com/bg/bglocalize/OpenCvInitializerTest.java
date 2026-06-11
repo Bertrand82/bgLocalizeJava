@@ -1,11 +1,11 @@
-package com.bertrand82.bglocalize;
+package com.bg.bglocalize;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
+import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 public class OpenCvInitializerTest {
 

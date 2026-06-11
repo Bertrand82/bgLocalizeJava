@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize.image;
+package com.bg.bglocalize.image;
 
 public interface ImageLoader {
 

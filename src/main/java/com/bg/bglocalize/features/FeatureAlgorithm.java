@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize.features;
+package com.bg.bglocalize.features;
 
 import java.util.Locale;
 

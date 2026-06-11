@@ -1,5 +1,6 @@
-package com.bertrand82.bglocalize.image;
+package com.bg.bglocalize.image;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -7,7 +8,7 @@ import java.util.Objects;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
-import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
+import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 public final class FilesystemImageLoader implements ImageLoader {
 
@@ -27,5 +28,9 @@ public final class FilesystemImageLoader implements ImageLoader {
         }
 
         return new LoadedImage(path.getFileName().toString(), path.toString(), image.cols(), image.rows(), image);
+    }
+    
+    public LoadedImage load(File imageFile) {
+    	return load(imageFile.getPath());
     }
 }

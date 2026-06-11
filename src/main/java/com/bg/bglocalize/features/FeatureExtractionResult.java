@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize.features;
+package com.bg.bglocalize.features;
 
 import java.util.Objects;
 
@@ -71,4 +71,13 @@ public final class FeatureExtractionResult {
     public int getDescriptorMatType() {
         return descriptorMatType;
     }
+
+	@Override
+	public String toString() {
+		return "FeatureExtractionResult [imageId=" + imageId + ", imagePath=" + imagePath + ", width=" + width
+				+ ", height=" + height + ", algorithm=" + algorithm + ", keypoints=" + keypoints + ", descriptors="
+				+ descriptors + ", keypointCount=" + keypointCount + ", descriptorMatType=" + descriptorMatType + "]";
+	}
+    
+   
 }

@@ -1,6 +1,6 @@
-package com.bertrand82.bglocalize;
+package com.bg.bglocalize;
 
-import com.bertrand82.bglocalize.cli.FeatureCli;
+import com.bg.bglocalize.cli.FeatureCli;
 
 public final class App {
 

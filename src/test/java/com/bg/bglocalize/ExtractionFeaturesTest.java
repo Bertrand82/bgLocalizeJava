@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize;
+package com.bg.bglocalize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,14 +17,13 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.bertrand82.bglocalize.cli.FeatureCli;
-import com.bertrand82.bglocalize.features.FeatureAlgorithm;
-import com.bertrand82.bglocalize.features.FeatureExtractionResult;
-import com.bertrand82.bglocalize.features.OpenCvFeatureExtractor;
-import com.bertrand82.bglocalize.image.FilesystemImageLoader;
-import com.bertrand82.bglocalize.image.LoadedImage;
-import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
-//import com.bertrand82.util.UtilImage;
+import com.bg.bglocalize.cli.FeatureCli;
+import com.bg.bglocalize.features.FeatureAlgorithm;
+import com.bg.bglocalize.features.FeatureExtractionResult;
+import com.bg.bglocalize.features.OpenCvFeatureExtractor;
+import com.bg.bglocalize.image.FilesystemImageLoader;
+import com.bg.bglocalize.image.LoadedImage;
+import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 class ExtractionFeaturesTest {
 	
@@ -55,7 +54,7 @@ class ExtractionFeaturesTest {
         System.out.println("bg shouldLoadImageFromFilesystem  done "+imagePath);
     }
 
-    private Path getImageTest() {
+    public static  Path getImageTest() {
 		
 		return imageTest.toPath();
 	}
@@ -63,8 +62,7 @@ class ExtractionFeaturesTest {
 	@ParameterizedTest
     @MethodSource("algorithms")
     void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
-    	File fileImage = new File(dirTarget,"image_"+algorithm.name().toLowerCase() + ".png");
-        Path imagePath = getImageTest();
+    	Path imagePath = getImageTest();
 
         FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
 

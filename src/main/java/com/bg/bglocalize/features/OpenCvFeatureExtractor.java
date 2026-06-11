@@ -1,4 +1,4 @@
-package com.bertrand82.bglocalize.features;
+package com.bg.bglocalize.features;
 
 import java.util.Objects;
 
@@ -7,10 +7,10 @@ import org.opencv.core.MatOfKeyPoint;
 import org.opencv.features2d.Feature2D;
 import org.opencv.imgproc.Imgproc;
 
-import com.bertrand82.bglocalize.image.FilesystemImageLoader;
-import com.bertrand82.bglocalize.image.ImageLoader;
-import com.bertrand82.bglocalize.image.LoadedImage;
-import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
+import com.bg.bglocalize.image.FilesystemImageLoader;
+import com.bg.bglocalize.image.ImageLoader;
+import com.bg.bglocalize.image.LoadedImage;
+import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 public final class OpenCvFeatureExtractor implements FeatureExtractor {
 

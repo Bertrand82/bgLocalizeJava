@@ -1,13 +1,13 @@
-package com.bertrand82.bglocalize.cli;
+package com.bg.bglocalize.cli;
 
 import java.io.PrintStream;
 import java.util.Objects;
 
 import org.opencv.core.CvType;
 
-import com.bertrand82.bglocalize.features.FeatureAlgorithm;
-import com.bertrand82.bglocalize.features.FeatureExtractionResult;
-import com.bertrand82.bglocalize.features.OpenCvFeatureExtractor;
+import com.bg.bglocalize.features.FeatureAlgorithm;
+import com.bg.bglocalize.features.FeatureExtractionResult;
+import com.bg.bglocalize.features.OpenCvFeatureExtractor;
 
 public final class FeatureCli {
 
