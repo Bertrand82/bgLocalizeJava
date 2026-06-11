@@ -17,6 +17,39 @@ A partir de données issues du traitement colmap, d'une pre-estimation de la pos
 
 
 # Extraction features
+Cette preuve de concept expose maintenant une API Java réutilisable basée sur OpenCV Java.
 
+## API
 
+Extraction depuis le filesystem :
 
+- `FeatureExtractionResult extract(String imagePath, FeatureAlgorithm algorithm)`
+
+Séparation prévue :
+
+- `FilesystemImageLoader` pour le chargement d'image
+- `OpenCvFeatureExtractor` pour l'extraction de features
+
+Algorithmes supportés :
+
+- `ORB`
+- `SIFT`
+- `AKAZE`
+- `BRISK`
+
+Le résultat expose directement des types OpenCV standards :
+
+- `MatOfKeyPoint`
+- `Mat descriptors`
+- type OpenCV du `Mat`
+- nombre de keypoints
+
+## CLI
+
+Construction :
+
+- `mvn package`
+
+Exécution :
+
+- `java -jar target/bgLocalizeJava-1.0-SNAPSHOT-jar-with-dependencies.jar --image /chemin/image.png --algorithm SIFT`
