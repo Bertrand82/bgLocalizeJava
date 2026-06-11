@@ -39,6 +39,7 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
         MatOfKeyPoint keypoints = new MatOfKeyPoint();
         Mat descriptors = new Mat();
         Mat grayscale = new Mat();
+        Mat mask = new Mat();
 
         try {
             Mat sourceImage = image.getImage();
@@ -48,7 +49,7 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
                 sourceImage.copyTo(grayscale);
             }
 
-            extractor.detectAndCompute(grayscale, new Mat(), keypoints, descriptors);
+            extractor.detectAndCompute(grayscale, mask, keypoints, descriptors);
             return new FeatureExtractionResult(
                     image.getImageId(),
                     image.getImagePath(),
@@ -58,6 +59,7 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
                     keypoints,
                     descriptors);
         } finally {
+            mask.release();
             grayscale.release();
         }
     }
