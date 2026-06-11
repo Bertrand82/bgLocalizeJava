@@ -60,13 +60,7 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
                     keypoints,
                     descriptors);
         } finally {
-            if (extractor != null) {
-                try {
-					extractor.clear();
-				} catch (Exception e) {
-					System.err.println("e Message "+e.getMessage());
-				}
-            }
+
             mask.release();
             grayscale.release();
         }
