@@ -10,9 +10,10 @@ public final class OpenCvInitializer {
     }
 
     public static void initialize() {
-    	System.out.println("initialized opencv :"+INITIALIZED);
+    	
         if (INITIALIZED.compareAndSet(false, true)) {
             nu.pattern.OpenCV.loadLocally();
+            System.out.println("initialized opencv :"+INITIALIZED);
         }
     }
 }

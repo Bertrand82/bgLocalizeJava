@@ -26,7 +26,7 @@ import com.bertrand82.bglocalize.image.LoadedImage;
 import com.bertrand82.bglocalize.opencv.OpenCvInitializer;
 //import com.bertrand82.util.UtilImage;
 
-class AppTest {
+class ExtractionFeaturesTest {
 	
 	static File dirTarget = new File("target");
 	static File imageTest = new File("data","BG.jpg");
@@ -34,14 +34,9 @@ class AppTest {
     @BeforeAll
     static void initializeOpenCv() {
         OpenCvInitializer.initialize();
-        System.out.println("bg initializeOpenCv done by initializeOpenCv");
+      
     }
-    
-    AppTest() {
-    	
-			System.out.println("Initialized : "+OpenCvInitializer.INITIALIZED);
-		 
-    }
+ 
 
     @Test
     void shouldLoadImageFromFilesystem() throws IOException {
