@@ -40,6 +40,18 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Pure-Java EXIF/metadata reading (video + image) -->
+    <dependency>
+      <groupId>com.drewnoakes</groupId>
+      <artifactId>metadata-extractor</artifactId>
+      <version>2.19.0</version>
+    </dependency>
+    <!-- Pure-Java EXIF writing for JPEG -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-imaging</artifactId>
+      <version>1.0-alpha3</version>
+    </dependency>
   </dependencies>
 
   <build>

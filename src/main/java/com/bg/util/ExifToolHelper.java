@@ -1,82 +1,75 @@
 package com.bg.util;
 
-import java.io.BufferedReader;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.GpsDirectory;
+import com.drew.metadata.mp4.Mp4Directory;
+import com.drew.metadata.mov.QuickTimeDirectory;
+
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.ImageWriteException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.RationalNumber;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
+import org.apache.commons.imaging.formats.tiff.constants.GpsTagConstants;
+import org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory;
+import org.apache.commons.imaging.formats.tiff.write.TiffOutputSet;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
- * Utility class that wraps the ExifTool command-line tool to:
+ * Utility class to:
  * <ul>
  *   <li>Read metadata (creation date, GPS) from a video file.</li>
  *   <li>Write EXIF metadata (DateTimeOriginal, CreateDate, GPS) into a JPEG file.</li>
  * </ul>
  *
- * <p>ExifTool must be installed and available on the system PATH.
- * Use {@link #isExifToolAvailable()} to check before calling other methods.</p>
+ * <p>This implementation is pure Java: it uses the <em>metadata-extractor</em> library
+ * for reading metadata from video files (MP4, MOV, …) and <em>Apache Commons Imaging</em>
+ * for writing EXIF data into JPEG files. No external tool is required.</p>
  *
  * <p>Usage example:
  * <pre>{@code
- * if (!ExifToolHelper.isExifToolAvailable()) {
- *     System.err.println("ExifTool not found – EXIF enrichment disabled.");
- * } else {
- *     VideoMetadata meta = ExifToolHelper.readVideoMetadata(new File("video.mp4"));
- *     ExifToolHelper.writeMetadataToJpeg(new File("frame.jpg"), Instant.now(), meta);
- * }
+ * VideoMetadata meta = ExifToolHelper.readVideoMetadata(new File("video.mp4"));
+ * ExifToolHelper.writeMetadataToJpeg(new File("frame.jpg"), Instant.now(), meta);
  * }</pre></p>
  */
 public class ExifToolHelper {
 
-    /** ExifTool date/time format: {@code yyyy:MM:dd HH:mm:ss}. */
+    /** EXIF date/time format: {@code yyyy:MM:dd HH:mm:ss}. */
     private static final DateTimeFormatter EXIF_DT_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
-
-    // Regex patterns to extract fields from ExifTool JSON output (-json -n)
-    private static final Pattern PAT_CREATE_DATE =
-            Pattern.compile("\"(?:CreateDate|DateTimeOriginal)\"\\s*:\\s*\"([^\"]+)\"");
-    private static final Pattern PAT_GPS_LAT =
-            Pattern.compile("\"GPSLatitude\"\\s*:\\s*([+-]?[\\d.]+)");
-    private static final Pattern PAT_GPS_LON =
-            Pattern.compile("\"GPSLongitude\"\\s*:\\s*([+-]?[\\d.]+)");
-    private static final Pattern PAT_GPS_ALT =
-            Pattern.compile("\"GPSAltitude\"\\s*:\\s*([+-]?[\\d.]+)");
 
     private ExifToolHelper() {
         // utility class
     }
 
     // -------------------------------------------------------------------------
-    // Availability check
+    // Availability check (kept for API compatibility – always returns true)
     // -------------------------------------------------------------------------
 
     /**
-     * Returns {@code true} if {@code exiftool} is found on the system PATH.
+     * Always returns {@code true}: this implementation is pure Java and requires no
+     * external tool.
      */
     public static boolean isExifToolAvailable() {
-        try {
-            Process p = new ProcessBuilder("exiftool", "-ver")
-                    .redirectErrorStream(true)
-                    .start();
-            String version = new BufferedReader(new InputStreamReader(p.getInputStream()))
-                    .readLine();
-            p.waitFor();
-            boolean available = version != null && !version.isBlank();
-            if (available) {
-                System.out.println("[ExifTool] version " + version.trim() + " detected.");
-            }
-            return available;
-        } catch (IOException | InterruptedException e) {
-            return false;
-        }
+        return true;
     }
 
     // -------------------------------------------------------------------------
@@ -84,48 +77,43 @@ public class ExifToolHelper {
     // -------------------------------------------------------------------------
 
     /**
-     * Reads creation date/time and GPS coordinates from {@code videoFile} using ExifTool.
+     * Reads creation date/time and GPS coordinates from {@code videoFile} using the
+     * metadata-extractor library (pure Java, no external process).
      *
      * <p>The returned {@link VideoMetadata} may have {@code null} fields when the video
      * does not embed the corresponding information.</p>
      *
      * @param videoFile the source video file
      * @return parsed metadata; fields may be {@code null}
-     * @throws ExifToolException if ExifTool exits with an error or cannot be launched
+     * @throws ExifToolException if the file cannot be read or metadata parsing fails
      */
     public static VideoMetadata readVideoMetadata(File videoFile) throws ExifToolException {
-        System.out.println("[ExifTool] Reading metadata from: " + videoFile.getAbsolutePath());
+        System.out.println("[ExifHelper] Reading metadata from: " + videoFile.getAbsolutePath());
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(videoFile);
 
-        List<String> cmd = List.of(
-                "exiftool",
-                "-json",
-                "-n",                     // numeric output for GPS
-                "-CreateDate",
-                "-DateTimeOriginal",
-                "-GPSLatitude",
-                "-GPSLongitude",
-                "-GPSAltitude",
-                videoFile.getAbsolutePath()
-        );
+            Instant creationInstant = extractCreationInstant(metadata);
+            GeoLocation geo         = extractGeoLocation(metadata);
+            Double altitude         = extractAltitude(metadata);
 
-        String output = runExifTool(cmd);
+            Double latitude  = geo != null ? geo.getLatitude()  : null;
+            Double longitude = geo != null ? geo.getLongitude() : null;
 
-        Instant creationInstant = parseDateTime(output);
-        Double latitude  = parseDouble(PAT_GPS_LAT, output);
-        Double longitude = parseDouble(PAT_GPS_LON, output);
-        Double altitude  = parseDouble(PAT_GPS_ALT, output);
+            VideoMetadata meta = new VideoMetadata(creationInstant, latitude, longitude, altitude);
+            System.out.println("[ExifHelper] Parsed: " + meta);
 
-        VideoMetadata meta = new VideoMetadata(creationInstant, latitude, longitude, altitude);
-        System.out.println("[ExifTool] Parsed: " + meta);
+            if (!meta.hasDateTime()) {
+                System.out.println("[ExifHelper] WARNING: no creation date found in video – timestamps will be skipped.");
+            }
+            if (!meta.hasGps()) {
+                System.out.println("[ExifHelper] WARNING: no GPS coordinates found in video – GPS tags will be skipped.");
+            }
+            return meta;
 
-        if (!meta.hasDateTime()) {
-            System.out.println("[ExifTool] WARNING: no creation date found in video – timestamps will be skipped.");
+        } catch (ImageProcessingException | IOException e) {
+            throw new ExifToolException(
+                    "Failed to read metadata from " + videoFile.getName() + ": " + e.getMessage(), e);
         }
-        if (!meta.hasGps()) {
-            System.out.println("[ExifTool] WARNING: no GPS coordinates found in video – GPS tags will be skipped.");
-        }
-
-        return meta;
     }
 
     // -------------------------------------------------------------------------
@@ -133,7 +121,7 @@ public class ExifToolHelper {
     // -------------------------------------------------------------------------
 
     /**
-     * Writes EXIF metadata into {@code jpegFile}.
+     * Writes EXIF metadata into {@code jpegFile} using Apache Commons Imaging (pure Java).
      *
      * <ul>
      *   <li>If {@code frameInstant} is non-null, {@code DateTimeOriginal} and
@@ -145,60 +133,84 @@ public class ExifToolHelper {
      *       returns without modifying the file.</li>
      * </ul>
      *
-     * @param jpegFile      the JPEG file to enrich
-     * @param frameInstant  the exact capture instant of the frame (UTC), may be {@code null}
-     * @param metadata      video-level metadata; may contain {@code null} fields
-     * @throws ExifToolException if ExifTool exits with an error or cannot be launched
+     * @param jpegFile     the JPEG file to enrich
+     * @param frameInstant the exact capture instant of the frame (UTC), may be {@code null}
+     * @param metadata     video-level metadata; may contain {@code null} fields
+     * @throws ExifToolException if EXIF data cannot be written to the file
      */
     public static void writeMetadataToJpeg(File jpegFile, Instant frameInstant, VideoMetadata metadata)
             throws ExifToolException {
 
-        List<String> args = new ArrayList<>();
-        args.add("exiftool");
-        args.add("-overwrite_original");
+        TiffOutputSet outputSet = loadOrCreateOutputSet(jpegFile);
+        boolean hasData = false;
 
-        // --- date/time tags ---
-        if (frameInstant != null) {
-            String dateStr = EXIF_DT_FORMATTER.format(
-                    LocalDateTime.ofInstant(frameInstant, ZoneOffset.UTC));
-            args.add("-DateTimeOriginal=" + dateStr);
-            args.add("-CreateDate=" + dateStr);
-            System.out.println("[ExifTool] Writing DateTimeOriginal=" + dateStr
-                    + " to " + jpegFile.getName());
-        } else {
-            System.out.println("[ExifTool] WARNING: no date/time for " + jpegFile.getName()
-                    + " – temporal EXIF skipped.");
-        }
-
-        // --- GPS tags ---
-        if (metadata != null && metadata.hasGps()) {
-            double lat = metadata.getLatitude();
-            double lon = metadata.getLongitude();
-            // EXIF spec requires N/S and E/W; 0.0° latitude is assigned "N" (equator),
-            // 0.0° longitude is assigned "E" (prime meridian) – both are conventional.
-            args.add("-GPSLatitude#=" + Math.abs(lat));
-            args.add("-GPSLatitudeRef=" + (lat >= 0 ? "N" : "S"));
-            args.add("-GPSLongitude#=" + Math.abs(lon));
-            args.add("-GPSLongitudeRef=" + (lon >= 0 ? "E" : "W"));
-            if (metadata.getAltitude() != null) {
-                double alt = metadata.getAltitude();
-                args.add("-GPSAltitude#=" + Math.abs(alt));
-                args.add("-GPSAltitudeRef=" + (alt >= 0 ? "0" : "1"));
+        try {
+            // --- date/time tags ---
+            if (frameInstant != null) {
+                String dateStr = EXIF_DT_FORMATTER.format(
+                        LocalDateTime.ofInstant(frameInstant, ZoneOffset.UTC));
+                TiffOutputDirectory exifDir = outputSet.getOrCreateExifDirectory();
+                exifDir.removeField(ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL);
+                exifDir.add(ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL, dateStr);
+                // EXIF 'CreateDate' is stored as the DateTimeDigitized tag (tag 0x9004)
+                exifDir.removeField(ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED);
+                exifDir.add(ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED, dateStr);
+                System.out.println("[ExifHelper] Writing DateTimeOriginal=" + dateStr
+                        + " to " + jpegFile.getName());
+                hasData = true;
+            } else {
+                System.out.println("[ExifHelper] WARNING: no date/time for " + jpegFile.getName()
+                        + " – temporal EXIF skipped.");
             }
-        } else {
-            System.out.println("[ExifTool] INFO: no GPS data for " + jpegFile.getName()
-                    + " – GPS EXIF skipped.");
-        }
 
-        // nothing to write
-        if (args.size() == 2) {
-            System.out.println("[ExifTool] WARNING: no metadata to write for "
-                    + jpegFile.getName() + " – file left unchanged.");
-            return;
-        }
+            // --- GPS tags ---
+            if (metadata != null && metadata.hasGps()) {
+                double lat = metadata.getLatitude();
+                double lon = metadata.getLongitude();
+                // setGPSInDegrees(longitude, latitude)
+                outputSet.setGPSInDegrees(lon, lat);
+                if (metadata.getAltitude() != null) {
+                    double alt = metadata.getAltitude();
+                    TiffOutputDirectory gpsDir = outputSet.getOrCreateGPSDirectory();
+                    gpsDir.removeField(GpsTagConstants.GPS_TAG_GPS_ALTITUDE);
+                    gpsDir.add(GpsTagConstants.GPS_TAG_GPS_ALTITUDE,
+                            RationalNumber.valueOf(Math.abs(alt)));
+                    gpsDir.removeField(GpsTagConstants.GPS_TAG_GPS_ALTITUDE_REF);
+                    gpsDir.add(GpsTagConstants.GPS_TAG_GPS_ALTITUDE_REF,
+                            (byte) (alt >= 0
+                                    ? GpsTagConstants.GPS_TAG_GPS_ALTITUDE_REF_VALUE_ABOVE_SEA_LEVEL
+                                    : GpsTagConstants.GPS_TAG_GPS_ALTITUDE_REF_VALUE_BELOW_SEA_LEVEL));
+                }
+                System.out.println("[ExifHelper] Writing GPS lat=" + lat + " lon=" + lon
+                        + " to " + jpegFile.getName());
+                hasData = true;
+            } else {
+                System.out.println("[ExifHelper] INFO: no GPS data for " + jpegFile.getName()
+                        + " – GPS EXIF skipped.");
+            }
 
-        args.add(jpegFile.getAbsolutePath());
-        runExifTool(args);
+            if (!hasData) {
+                System.out.println("[ExifHelper] WARNING: no metadata to write for "
+                        + jpegFile.getName() + " – file left unchanged.");
+                return;
+            }
+
+            // Write to a temporary file, then atomically replace the original
+            File tmp = File.createTempFile("exif_", ".jpg", jpegFile.getParentFile());
+            try {
+                try (OutputStream os = new FileOutputStream(tmp)) {
+                    new ExifRewriter().updateExifMetadataLossless(jpegFile, os, outputSet);
+                }
+                Files.move(tmp.toPath(), jpegFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (ImageWriteException | ImageReadException | IOException e) {
+                tmp.delete();
+                throw e;
+            }
+
+        } catch (ImageWriteException | ImageReadException | IOException e) {
+            throw new ExifToolException(
+                    "Failed to write EXIF to " + jpegFile.getName() + ": " + e.getMessage(), e);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -206,70 +218,82 @@ public class ExifToolHelper {
     // -------------------------------------------------------------------------
 
     /**
-     * Runs the given ExifTool command and returns its combined stdout output.
-     *
-     * @throws ExifToolException on non-zero exit code or process launch failure
+     * Loads the existing EXIF output set from a JPEG, or returns a fresh empty set
+     * when the file has no EXIF block or cannot be parsed.
      */
-    private static String runExifTool(List<String> cmd) throws ExifToolException {
+    private static TiffOutputSet loadOrCreateOutputSet(File jpegFile) {
         try {
-            Process process = new ProcessBuilder(cmd)
-                    .redirectErrorStream(true)
-                    .start();
-
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader reader =
-                         new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append('\n');
+            JpegImageMetadata jpegMeta = (JpegImageMetadata) Imaging.getMetadata(jpegFile);
+            if (jpegMeta != null) {
+                TiffImageMetadata exif = jpegMeta.getExif();
+                if (exif != null) {
+                    return exif.getOutputSet();
                 }
             }
+        } catch (ImageReadException | ImageWriteException | IOException e) {
+            // fall through – return a fresh set below
+        }
+        return new TiffOutputSet();
+    }
 
-            int exitCode = process.waitFor();
-            String output = sb.toString();
-
-            if (exitCode != 0) {
-                throw new ExifToolException(
-                        "ExifTool exited with code " + exitCode + ": " + output.trim());
+    /** Returns the video creation time as an {@link Instant}, or {@code null} if absent. */
+    private static Instant extractCreationInstant(Metadata metadata) {
+        // MP4 / ISOM containers
+        Mp4Directory mp4Dir = metadata.getFirstDirectoryOfType(Mp4Directory.class);
+        if (mp4Dir != null) {
+            Date d = mp4Dir.getDate(Mp4Directory.TAG_CREATION_TIME, TimeZone.getTimeZone("UTC"));
+            if (d != null) {
+                return d.toInstant();
             }
-            return output;
-
-        } catch (IOException e) {
-            throw new ExifToolException("Failed to launch ExifTool: " + e.getMessage(), e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ExifToolException("ExifTool process interrupted.", e);
         }
+        // QuickTime / MOV containers
+        QuickTimeDirectory qtDir = metadata.getFirstDirectoryOfType(QuickTimeDirectory.class);
+        if (qtDir != null) {
+            Date d = qtDir.getDate(QuickTimeDirectory.TAG_CREATION_TIME, TimeZone.getTimeZone("UTC"));
+            if (d != null) {
+                return d.toInstant();
+            }
+        }
+        return null;
     }
 
-    /** Parses the first CreateDate / DateTimeOriginal found in ExifTool JSON output. */
-    private static Instant parseDateTime(String json) {
-        Matcher m = PAT_CREATE_DATE.matcher(json);
-        if (!m.find()) {
-            return null;
+    /**
+     * Returns GPS coordinates as a {@link GeoLocation}, or {@code null} if absent.
+     * Checks the standard {@link GpsDirectory} first, then the MP4 inline GPS fields.
+     */
+    private static GeoLocation extractGeoLocation(Metadata metadata) {
+        GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+        if (gpsDir != null) {
+            GeoLocation geo = gpsDir.getGeoLocation();
+            if (geo != null && !geo.isZero()) {
+                return geo;
+            }
         }
-        String raw = m.group(1).trim();
-        try {
-            LocalDateTime ldt = LocalDateTime.parse(raw, EXIF_DT_FORMATTER);
-            return ldt.toInstant(ZoneOffset.UTC);
-        } catch (DateTimeParseException e) {
-            System.out.println("[ExifTool] WARNING: could not parse date '" + raw + "': " + e.getMessage());
-            return null;
+        // MP4 inline GPS stored as decimal values in the 'udta' box
+        Mp4Directory mp4Dir = metadata.getFirstDirectoryOfType(Mp4Directory.class);
+        if (mp4Dir != null
+                && mp4Dir.containsTag(Mp4Directory.TAG_LATITUDE)
+                && mp4Dir.containsTag(Mp4Directory.TAG_LONGITUDE)) {
+            Double lat = mp4Dir.getDoubleObject(Mp4Directory.TAG_LATITUDE);
+            Double lon = mp4Dir.getDoubleObject(Mp4Directory.TAG_LONGITUDE);
+            if (lat != null && lon != null) {
+                return new GeoLocation(lat, lon);
+            }
         }
+        return null;
     }
 
-    /** Extracts the first numeric group matched by {@code pattern} in {@code text}, or {@code null}. */
-    private static Double parseDouble(Pattern pattern, String text) {
-        Matcher m = pattern.matcher(text);
-        if (!m.find()) {
-            return null;
+    /** Returns GPS altitude in metres (negative = below sea level), or {@code null} if absent. */
+    private static Double extractAltitude(Metadata metadata) {
+        GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+        if (gpsDir != null && gpsDir.containsTag(GpsDirectory.TAG_ALTITUDE)) {
+            Double alt = gpsDir.getDoubleObject(GpsDirectory.TAG_ALTITUDE);
+            if (alt != null) {
+                Integer ref = gpsDir.getInteger(GpsDirectory.TAG_ALTITUDE_REF);
+                return (ref != null && ref == 1) ? -alt : alt;
+            }
         }
-        try {
-            return Double.parseDouble(m.group(1));
-        } catch (NumberFormatException e) {
-            System.out.println("[ExifTool] WARNING: could not parse numeric value '" + m.group(1) + "'");
-            return null;
-        }
+        return null;
     }
 
     // -------------------------------------------------------------------------
@@ -277,7 +301,7 @@ public class ExifToolHelper {
     // -------------------------------------------------------------------------
 
     /**
-     * Thrown when ExifTool is not available or returns an error.
+     * Thrown when metadata cannot be read from a video file or written to a JPEG.
      */
     public static class ExifToolException extends Exception {
         public ExifToolException(String message) {
