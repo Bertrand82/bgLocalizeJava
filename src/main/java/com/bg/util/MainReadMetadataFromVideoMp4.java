@@ -28,7 +28,7 @@ public class MainReadMetadataFromVideoMp4 {
 
         File videoFile = new File(args[0]);
         if (!videoFile.isFile()) {
-            System.err.println("File not found: " + videoFile.getAbsolutePath());
+            System.err.println("File does not exist or is not a regular file: " + videoFile.getAbsolutePath());
             System.exit(1);
         }
 
@@ -37,7 +37,8 @@ public class MainReadMetadataFromVideoMp4 {
             printMetadata(metadata);
         } catch (ImageProcessingException | IOException e) {
             System.err.println("Failed to read metadata from " + videoFile.getAbsolutePath());
-            System.err.println(e.getMessage());
+            String details = e.getMessage() != null ? e.getMessage() : e.toString();
+            System.err.println(details);
             System.exit(2);
         }
     }
