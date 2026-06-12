@@ -174,6 +174,8 @@ public class ExifToolHelper {
         if (metadata != null && metadata.hasGps()) {
             double lat = metadata.getLatitude();
             double lon = metadata.getLongitude();
+            // EXIF spec requires N/S and E/W; 0.0° latitude is assigned "N" (equator),
+            // 0.0° longitude is assigned "E" (prime meridian) – both are conventional.
             args.add("-GPSLatitude#=" + Math.abs(lat));
             args.add("-GPSLatitudeRef=" + (lat >= 0 ? "N" : "S"));
             args.add("-GPSLongitude#=" + Math.abs(lon));
