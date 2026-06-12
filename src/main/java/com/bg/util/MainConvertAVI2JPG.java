@@ -35,6 +35,7 @@ public class MainConvertAVI2JPG {
         // ------------------------------------------------------------------ //
         String videoPath = "data/VID_20260610_134434.AVI";
         videoPath = "D:\\BG.mp4";
+        videoPath ="C:\\Users\\bertr\\Videos\\bg_0.mp4";
 
         File target    = new File("target");
         File outputDir = new File(target, "output_" + System.currentTimeMillis());
@@ -43,12 +44,14 @@ public class MainConvertAVI2JPG {
 
         System.out.println("fileVideo exists=" + fileVideo.exists()
                 + "  path=" + fileVideo.getAbsolutePath());
-
+        if (!fileVideo.exists()) {
+        	System.err.println("No file Video"+  "  path=" + fileVideo.getAbsolutePath());
+        	return;
+        }
         // --- Check ExifTool availability once ---
         boolean exifToolAvailable = ExifToolHelper.isExifToolAvailable();
-        if (!exifToolAvailable) {
-            System.out.println("[WARN] ExifTool not found on PATH – EXIF enrichment will be skipped.");
-        }
+        System.out.println("ExifTool available :"+exifToolAvailable);
+        
 
         // --- Read video metadata ---
         VideoMetadata videoMetadata = null;
