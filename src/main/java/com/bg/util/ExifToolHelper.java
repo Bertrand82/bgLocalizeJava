@@ -152,6 +152,7 @@ public class ExifToolHelper {
                 TiffOutputDirectory exifDir = outputSet.getOrCreateExifDirectory();
                 exifDir.removeField(ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL);
                 exifDir.add(ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL, dateStr);
+                // EXIF 'CreateDate' is stored as the DateTimeDigitized tag (tag 0x9004)
                 exifDir.removeField(ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED);
                 exifDir.add(ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED, dateStr);
                 System.out.println("[ExifHelper] Writing DateTimeOriginal=" + dateStr
@@ -196,10 +197,15 @@ public class ExifToolHelper {
 
             // Write to a temporary file, then atomically replace the original
             File tmp = File.createTempFile("exif_", ".jpg", jpegFile.getParentFile());
-            try (OutputStream os = new FileOutputStream(tmp)) {
-                new ExifRewriter().updateExifMetadataLossless(jpegFile, os, outputSet);
+            try {
+                try (OutputStream os = new FileOutputStream(tmp)) {
+                    new ExifRewriter().updateExifMetadataLossless(jpegFile, os, outputSet);
+                }
+                Files.move(tmp.toPath(), jpegFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (ImageWriteException | ImageReadException | IOException e) {
+                tmp.delete();
+                throw e;
             }
-            Files.move(tmp.toPath(), jpegFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         } catch (ImageWriteException | ImageReadException | IOException e) {
             throw new ExifToolException(
