@@ -37,8 +37,7 @@ public class MainReadMetadataFromVideoMp4 {
             printMetadata(metadata);
         } catch (ImageProcessingException | IOException e) {
             System.err.println("Failed to read metadata from " + videoFile.getAbsolutePath());
-            String details = e.getMessage() != null ? e.getMessage() : e.toString();
-            System.err.println(details);
+            System.err.println(e.toString());
             System.exit(2);
         }
     }
