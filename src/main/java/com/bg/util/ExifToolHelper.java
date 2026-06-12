@@ -3,6 +3,7 @@ package com.bg.util;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.GpsDirectory;
 import com.drew.metadata.mp4.Mp4Directory;
@@ -30,6 +31,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -260,8 +262,11 @@ public class ExifToolHelper {
     /**
      * Returns GPS coordinates as a {@link GeoLocation}, or {@code null} if absent.
      * Checks the standard {@link GpsDirectory} first, then the MP4 inline GPS fields.
+     * @param <T>
      */
-    private static GeoLocation extractGeoLocation(Metadata metadata) {
+    private static <T> GeoLocation extractGeoLocation(Metadata metadata) {
+    	Collection<GpsDirectory> listDirGps = 	metadata.getDirectoriesOfType(GpsDirectory.class);
+    	System.err.println("listDirGps size "+listDirGps.size());
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
             GeoLocation geo = gpsDir.getGeoLocation();
