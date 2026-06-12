@@ -9,10 +9,11 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
+import com.bg.bglocalize.opencv.OpenCvInitializer;
+
 public class MainConvertAVI2JPG {
 	public static void main(String[] args_) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
+		OpenCvInitializer.initialize();
         String videoPath = "data/VID_20260610_134434.AVI";
          videoPath = "D:\\BG.mp4";
          File target = new File("target");

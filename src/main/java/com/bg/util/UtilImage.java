@@ -1,4 +1,4 @@
-package com.bertrand82.util;
+package com.bg.util;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
