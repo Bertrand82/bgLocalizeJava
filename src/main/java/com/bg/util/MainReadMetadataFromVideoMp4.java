@@ -21,12 +21,9 @@ import java.io.IOException;
 public class MainReadMetadataFromVideoMp4 {
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.err.println("Usage: MainReadMetadataFromVideoMp4 <video.mp4>");
-            System.exit(1);
-        }
-
-        File videoFile = new File(args[0]);
+   
+        String videoPath ="C:\\Users\\bertr\\Videos\\bg_0.mp4";
+        File videoFile = new File(videoPath);
         if (!videoFile.isFile()) {
             System.err.println("File does not exist or is not a regular file: " + videoFile.getAbsolutePath());
             System.exit(1);
