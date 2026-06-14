@@ -35,7 +35,7 @@ public class MainConvertAVI2JPG {
         // ------------------------------------------------------------------ //
         String videoPath = "data/VID_20260610_134434.AVI";
         videoPath = "D:\\BG.mp4";
-        videoPath ="C:\\Users\\bertr\\Videos\\bg_0.mp4";
+        videoPath ="C:\\Users\\bertr\\Videos\\BG.mp4";
 
         File target    = new File("target");
         File outputDir = new File(target, "output_" + System.currentTimeMillis());

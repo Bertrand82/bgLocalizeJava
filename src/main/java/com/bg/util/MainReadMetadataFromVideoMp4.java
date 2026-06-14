@@ -22,7 +22,7 @@ public class MainReadMetadataFromVideoMp4 {
 
     public static void main(String[] args) {
    
-        String videoPath ="C:\\Users\\bertr\\Videos\\bg_0.mp4";
+        String videoPath ="C:\\Users\\bertr\\Videos\\BG.mp4";
         File videoFile = new File(videoPath);
         if (!videoFile.isFile()) {
             System.err.println("File does not exist or is not a regular file: " + videoFile.getAbsolutePath());
