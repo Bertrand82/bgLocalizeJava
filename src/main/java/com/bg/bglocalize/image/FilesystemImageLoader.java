@@ -15,7 +15,7 @@ public final class FilesystemImageLoader implements ImageLoader {
     @Override
     public LoadedImage load(String imagePath) {
         Objects.requireNonNull(imagePath, "imagePath must not be null");
-        OpenCvInitializer.initialize();
+         
 
         Path path = Path.of(imagePath).toAbsolutePath().normalize();
         if (!Files.isRegularFile(path)) {

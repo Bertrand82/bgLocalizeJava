@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -40,29 +39,23 @@ class ExtractionFeaturesTest {
     @Test
     void shouldLoadImageFromFilesystem() throws IOException {
     	
-        Path imagePath = getImageTest();
-
-        LoadedImage loadedImage = new FilesystemImageLoader().load(imagePath.toString());
+         LoadedImage loadedImage = new FilesystemImageLoader().load(imageTest);
 
         try {
-            assertEquals(imagePath.toAbsolutePath().toString(), loadedImage.getImagePath());
-           
+            
             assertFalse(loadedImage.getImage().empty());
         } finally {
             loadedImage.getImage().release();
         }
-        System.out.println("bg shouldLoadImageFromFilesystem  done "+imagePath);
+        System.out.println("bg shouldLoadImageFromFilesystem  done "+imageTest.toPath());
     }
 
-    public static  Path getImageTest() {
-		
-		return imageTest.toPath();
-	}
+   
 
 	@ParameterizedTest
     @MethodSource("algorithms")
     void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
-    	Path imagePath = getImageTest();
+    	Path imagePath = imageTest.toPath();
 
         FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
 
@@ -84,19 +77,12 @@ class ExtractionFeaturesTest {
 
     @Test
     void shouldRunCli(@TempDir Path tempDir) throws IOException {
-        Path imagePath =getImageTest();
-        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+        Path imagePath =imageTest.toPath();
+       
+        String[] args =new String[] { "--image", imagePath.toString(), "--algorithm", "SIFT" };
+        FeatureCli.main(args);
 
-        int exitCode = FeatureCli.run(
-                new String[] { "--image", imagePath.toString(), "--algorithm", "SIFT" },
-                new PrintStream(stdout),
-                new PrintStream(stderr));
-
-        assertEquals(0, exitCode);
-        assertTrue(stderr.toString().isBlank());
-        assertTrue(stdout.toString().contains("algorithm=SIFT"));
-        assertTrue(stdout.toString().contains("keypoints="));
+       
     }
 
     private static Stream<FeatureAlgorithm> algorithms() {

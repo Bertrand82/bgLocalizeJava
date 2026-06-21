@@ -15,53 +15,45 @@ public final class FeatureCli {
     }
 
     public static void main(String[] args) {
-        int exitCode = run(args, System.out, System.err);
-        if (exitCode != 0) {
-            System.exit(exitCode);
-        }
-    }
-
-    public static int run(String[] args, PrintStream out, PrintStream err) {
-        Objects.requireNonNull(out, "out must not be null");
-        Objects.requireNonNull(err, "err must not be null");
+       
 
         try {
             CliOptions options = CliOptions.parse(args);
             if (options.help()) {
-                printUsage(out);
-                return 0;
+                printUsage();
+                return ;
             }
 
             if (options.imagePath() == null) {
-                printUsage(err);
-                return 1;
+                printUsage();
+                System.exit(1);
             }
 
             FeatureExtractionResult result = new OpenCvFeatureExtractor()
                     .extract(options.imagePath(), options.algorithm());
             try {
-                out.println("imagePath=" + result.getImagePath());
-                out.println("imageId=" + result.getImageId());
-                out.println("algorithm=" + result.getAlgorithm());
-                out.println("dimensions=" + result.getWidth() + "x" + result.getHeight());
-                out.println("keypoints=" + result.getKeypointCount());
-                out.println("descriptorType=" + result.getDescriptorMatType());
-                out.println("descriptorTypeName=" + CvType.typeToString(result.getDescriptorMatType()));
-                out.println("descriptorRows=" + result.getDescriptors().rows());
-                out.println("descriptorCols=" + result.getDescriptors().cols());
+               System.out.println("imagePath=" + result.getImagePath());
+               System.out.println("imageId=" + result.getImageId());
+               System.out.println("algorithm=" + result.getAlgorithm());
+               System.out.println("dimensions=" + result.getWidth() + "x" + result.getHeight());
+               System.out.println("keypoints=" + result.getKeypointCount());
+               System.out.println("descriptorType=" + result.getDescriptorMatType());
+               System.out.println("descriptorTypeName=" + CvType.typeToString(result.getDescriptorMatType()));
+               System.out.println("descriptorRows=" + result.getDescriptors().rows());
+               System.out.println("descriptorCols=" + result.getDescriptors().cols());
             } finally {
                 result.getKeypoints().release();
                 result.getDescriptors().release();
             }
-            return 0;
+           
         } catch (IllegalArgumentException e) {
-            err.println(e.getMessage());
-            return 2;
+            System.err.println(e.getMessage());
+            System.exit(2);
         }
     }
 
-    private static void printUsage(PrintStream out) {
-        out.println("Usage: java -jar bgLocalizeJava-jar-with-dependencies.jar --image <path> [--algorithm ORB|SIFT|AKAZE|BRISK]");
+    private static void printUsage() {
+        System.out.println("Usage: java -jar bgLocalizeJava-jar-with-dependencies.jar --image <path> [--algorithm ORB|SIFT|AKAZE|BRISK]");
     }
 
     private record CliOptions(String imagePath, FeatureAlgorithm algorithm, boolean help) {

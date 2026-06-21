@@ -17,27 +17,33 @@ import com.bg.bglocalize.features.FeatureExtractionResult;
 import com.bg.bglocalize.features.OpenCvFeatureExtractor;
 import com.bg.bglocalize.image.FilesystemImageLoader;
 import com.bg.bglocalize.image.LoadedImage;
+import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 public class MainExtractFeatureFromImage {
 
 	static File imageTest = new File("data", "BG.jpg");
 
 	public static void main(String[] args) throws Exception{
+		OpenCvInitializer.initialize();
 		extractFeatures(imageTest);
 	}
 
 	public static void extractFeatures(File imageFile) throws Exception {
 		
 		FeatureAlgorithm algorithm = FeatureAlgorithm.SIFT;
+		System.out.println("algorithm :"+algorithm);
 		LoadedImage loadedImage = new FilesystemImageLoader().load(imageFile); 
+		System.out.println("loadedImage "+loadedImage);
 		FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(loadedImage, algorithm);
 		System.out.println("result : "+result.toString());
+		System.out.println("result imagePath : "+result.getImagePath());
+		System.out.println("result KeypointCount : "+result.getKeypointCount());
 	}
 	
 	
 
     void shouldExtractOpenCvCompatibleFeatures(FeatureAlgorithm algorithm, @TempDir Path tempDir) throws IOException {
-    	Path imagePath = ExtractionFeaturesTest. getImageTest();
+    	Path imagePath = ExtractionFeaturesTest.imageTest.toPath();
 
         FeatureExtractionResult result = new OpenCvFeatureExtractor().extract(imagePath.toString(), algorithm);
 
