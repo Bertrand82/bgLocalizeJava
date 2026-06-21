@@ -2,6 +2,7 @@ package com.bg.bglocalize.colmap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -60,6 +61,6 @@ class ColmapTextModelReaderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> reader.readImages(Path.of("data", "BG", "sparse", "0", "missing-images.txt")));
 
-        assertEquals(true, exception.getMessage().contains("COLMAP file not found"));
+        assertTrue(exception.getMessage().contains("COLMAP file not found"));
     }
 }
