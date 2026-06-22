@@ -66,15 +66,21 @@ public final class ColmapImageOpenCVFactory {
         List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
         
         for (ColmapImage colmapImage : colmapImages) {
+        	long timeStart = System.currentTimeMillis();
         	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
         	ColmapImageOpenCV cio = create(colmapImage, algorithm);
-        	System.out.println(" done  :"+cio);
+        	System.out.println(" done  :"+getDeltaTime(timeStart)+"  "+cio);
             results.add(cio);
         }
         return results;
     }
 
-    private List<ColmapImageObservationOpenCV> extractObservationFeatures(
+    private String getDeltaTime(long timeStart) {
+		
+		return( ((System.currentTimeMillis()-timeStart)/1000)+" secondes ");
+	}
+
+	private List<ColmapImageObservationOpenCV> extractObservationFeatures(
             LoadedImage image,
             List<ColmapImageObservation> observations,
             FeatureAlgorithm algorithm) {

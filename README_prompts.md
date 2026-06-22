@@ -255,6 +255,7 @@ En test les 2 images (./data/BG.jpg et ./data/BG_1.jpg) , Apres avoir recuperé 
 
 
 
-
+## Lire et Ecrire dans un fichier ColmapImageOpenCv 
+Faire ColmapImageOpenCvFactoryText avec des methodes pour lire et écrire dans un fichier texte des ColmapImageOpenCv sur plusieurs lignes (Avec les meme convention pour l'objet ColmapImage utilisés dans  ColmapTextModelReader
 
 
