@@ -29,6 +29,9 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
  */
 public final class ColmapImageOpenCvFactoryText {
 
+    /** Number of whitespace-separated fields on an image header line. */
+    private static final int IMAGE_HEADER_FIELD_COUNT = 10;
+
     /**
      * Writes a list of {@link ColmapImageOpenCV} to a text file.
      *
@@ -83,8 +86,8 @@ public final class ColmapImageOpenCvFactoryText {
                 }
 
                 // Line 1: image header — same as COLMAP images.txt format
-                String[] header = line.trim().split("\\s+", 10);
-                if (header.length < 10) {
+                String[] header = line.trim().split("\\s+", IMAGE_HEADER_FIELD_COUNT);
+                if (header.length < IMAGE_HEADER_FIELD_COUNT) {
                     throw new IllegalArgumentException(
                             "Invalid image header at line " + lineNumber + ": " + line);
                 }
@@ -164,8 +167,12 @@ public final class ColmapImageOpenCvFactoryText {
         ColmapImage ci = image.getColmapImage();
 
         // Line 1: same convention as ColmapTextModelReader images.txt header
-        writer.write(ci.imageId() + " " + ci.qw() + " " + ci.qx() + " " + ci.qy() + " " + ci.qz()
-                + " " + ci.tx() + " " + ci.ty() + " " + ci.tz() + " " + ci.cameraId() + " " + ci.name());
+        StringBuilder headerLine = new StringBuilder();
+        headerLine.append(ci.imageId()).append(' ').append(ci.qw()).append(' ').append(ci.qx())
+                .append(' ').append(ci.qy()).append(' ').append(ci.qz()).append(' ').append(ci.tx())
+                .append(' ').append(ci.ty()).append(' ').append(ci.tz())
+                .append(' ').append(ci.cameraId()).append(' ').append(ci.name());
+        writer.write(headerLine.toString());
         writer.newLine();
 
         // Line 2: algorithm name and number of observation features
