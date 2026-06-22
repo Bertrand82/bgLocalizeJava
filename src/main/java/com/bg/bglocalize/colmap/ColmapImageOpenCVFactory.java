@@ -63,21 +63,22 @@ public final class ColmapImageOpenCVFactory {
     }
 
     public List<ColmapImageOpenCV> createAll(List<ColmapImage> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
-        Objects.requireNonNull(colmapImages, "colmapImages must not be null");
         List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
+        
         for (ColmapImage colmapImage : colmapImages) {
-            results.add(create(colmapImage, algorithm));
+        	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
+        	ColmapImageOpenCV cio = create(colmapImage, algorithm);
+        	System.out.println(" done  :"+cio);
+            results.add(cio);
         }
-        return List.copyOf(results);
+        return results;
     }
 
     private List<ColmapImageObservationOpenCV> extractObservationFeatures(
             LoadedImage image,
             List<ColmapImageObservation> observations,
             FeatureAlgorithm algorithm) {
-        Objects.requireNonNull(image, "image must not be null");
-        Objects.requireNonNull(observations, "observations must not be null");
-        OpenCvInitializer.initialize();
+            OpenCvInitializer.initialize();
 
         Mat grayscale = new Mat();
         Feature2D extractor = algorithm.createExtractor();
@@ -95,7 +96,7 @@ public final class ColmapImageOpenCVFactory {
                 validateObservation(observation, image);
                 features.add(extractObservationFeature(grayscale, extractor, observation));
             }
-            return List.copyOf(features);
+            return features;
         } finally {
             grayscale.release();
         }

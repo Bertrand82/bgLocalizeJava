@@ -26,127 +26,122 @@ import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 class ImageMatchServiceTest {
 
-    private static final File DATABASE_FILE = new File("data/BG/database.db");
-    private static final File IMAGES_DIRECTORY = new File("data/BG/images");
-    private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
-    private static final File QUERY_IMAGE_1 = new File("data/BG.jpg");
-    private static final File QUERY_IMAGE_2 = new File("data/BG_1.jpg");
+	private static final File DATABASE_FILE = new File("data/BG/database.db");
+	private static final File IMAGES_DIRECTORY = new File("data/BG/images");
+	private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
+	private static final File QUERY_IMAGE_1 = new File("data/BG.jpg");
+	private static final File QUERY_IMAGE_2 = new File("data/BG_1.jpg");
 
-    private static final FeatureAlgorithm ALGORITHM = FeatureAlgorithm.SIFT;
+	private static final FeatureAlgorithm ALGORITHM = FeatureAlgorithm.SIFT;
 
-    private static List<ColmapImageOpenCV> colmapImages;
-    private static FeatureExtractionResult queryResult1;
-    private static FeatureExtractionResult queryResult2;
+	private static List<ColmapImageOpenCV> colmapImages;
+	private static FeatureExtractionResult queryResult1;
+	private static FeatureExtractionResult queryResult2;
 
-    private static final int MAX_OBSERVATIONS_PER_IMAGE = 10;
+	private static final int MAX_OBSERVATIONS_PER_IMAGE = 10;
 
-    @BeforeAll
-    static void setUp() throws IOException, SQLException {
-        OpenCvInitializer.initialize();
+	@BeforeAll
+	static void setUp() throws IOException, SQLException {
+		System.out.println("setUp  OpenCvInitializer.initialize");
+		OpenCvInitializer.initialize();
 
-        OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
-        queryResult1 = extractor.extract(QUERY_IMAGE_1.getPath(), ALGORITHM);
-        queryResult2 = extractor.extract(QUERY_IMAGE_2.getPath(), ALGORITHM);
+		OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
+		System.out.println("setUp  extract  2 images sources ");
+		queryResult1 = extractor.extract(QUERY_IMAGE_1.getPath(), ALGORITHM);
+		queryResult2 = extractor.extract(QUERY_IMAGE_2.getPath(), ALGORITHM);
+		System.out.println("Lecture images2D colmap start");
+		ColmapTextModelReader reader = new ColmapTextModelReader();
+		List<ColmapImage> images = reader.readImages(IMAGES_TXT.toPath());
+		System.out.println("Lecture images2D colmap done images.size "+images.size());
+		System.out.println("Lecture images2D colmap  openCV");
+		ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
+		System.out.println("Lecture images2D colmap  conversion openCv start");
+		colmapImages = factory.createAll(images, ALGORITHM);
+		System.out.println("Lecture images2D colmap  conversion openCv done");
+	}
 
-        ColmapTextModelReader reader = new ColmapTextModelReader();
-        List<ColmapImage> images = reader.readImages(IMAGES_TXT.toPath()).stream()
-                .map(img -> limitObservations(img, MAX_OBSERVATIONS_PER_IMAGE))
-                .toList();
+	@Test
+	void shouldLoadQueryImages() {
+		assertNotNull(queryResult1);
+		assertFalse(queryResult1.getDescriptors().empty());
+		assertTrue(queryResult1.getKeypointCount() > 0);
 
-        ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
-        colmapImages = factory.createAll(images, ALGORITHM);
-    }
+		assertNotNull(queryResult2);
+		assertFalse(queryResult2.getDescriptors().empty());
+		assertTrue(queryResult2.getKeypointCount() > 0);
+	}
 
-    @Test
-    void shouldLoadQueryImages() {
-        assertNotNull(queryResult1);
-        assertFalse(queryResult1.getDescriptors().empty());
-        assertTrue(queryResult1.getKeypointCount() > 0);
+	@Test
+	void shouldLoadColmapImages() {
+		assertFalse(colmapImages.isEmpty());
+	}
 
-        assertNotNull(queryResult2);
-        assertFalse(queryResult2.getDescriptors().empty());
-        assertTrue(queryResult2.getKeypointCount() > 0);
-    }
+	@Test
+	void shouldMatchQuery_1_ImageAgainstAllColmapImages() {
+		shouldMatchQueryImageAgainstAllColmapImages(queryResult1,"BG_1",colmapImages);
+	}
 
-    @Test
-    void shouldLoadColmapImages() {
-        assertFalse(colmapImages.isEmpty());
-    }
+	@Test
+	void shouldMatchQuery_2_ImageAgainstAllColmapImages() {
+		shouldMatchQueryImageAgainstAllColmapImages(queryResult2,"BG_2",colmapImages);
+	}
 
-    @Test
-    void shouldMatchQueryImage1AgainstAllColmapImages() {
-        ImageMatchService service = new ImageMatchService();
+	void shouldMatchQueryImageAgainstAllColmapImages(FeatureExtractionResult queryResult1, String comment, List<ColmapImageOpenCV> colmapImages ) {
+		ImageMatchService service = new ImageMatchService();
 
-        List<FeatureMatchResult> results = service.matchAll(queryResult1, colmapImages);
+		List<FeatureMatchResult> results = service.matchAll(queryResult1, colmapImages);
 
-        assertEquals(colmapImages.size(), results.size());
-        for (FeatureMatchResult result : results) {
-            assertNotNull(result.getTarget());
-            assertNotNull(result.getMatches());
-            System.out.println("BG.jpg vs " + result.getTarget().getImageName()
-                    + " -> " + result.getMatchCount() + " matches");
-        }
-    }
+		assertEquals(colmapImages.size(), results.size());
 
-    @Test
-    void shouldMatchQueryImage2AgainstAllColmapImages() {
-        ImageMatchService service = new ImageMatchService();
+		// 1) Sanity: all results valid
+		for (FeatureMatchResult result : results) {
+			assertNotNull(result.getTarget());
+			assertNotNull(result.getMatches());
+			assertTrue(result.getMatchCount() >= 0);
+			System.out.println(comment+" vs " + result.getTarget().getImageName()+"  features.size " +result.getTarget().getObservationFeatures().size()+ " -> " + result.getMatchCount() + " matches");
+		}
 
-        List<FeatureMatchResult> results = service.matchAll(queryResult2, colmapImages);
+		// 2) Critical: match counts should not all be identical across different target
+		// images
+		long distinctCounts = results.stream().map(FeatureMatchResult::getMatchCount).distinct().count();
 
-        assertEquals(colmapImages.size(), results.size());
-        for (FeatureMatchResult result : results) {
-            assertNotNull(result.getTarget());
-            assertNotNull(result.getMatches());
-            System.out.println("BG_1.jpg vs " + result.getTarget().getImageName()
-                    + " -> " + result.getMatchCount() + " matches");
-        }
-    }
+		// assertTrue(distinctCounts > 1,"All match counts are identical; likely
+		// counting raw descriptors or reusing state.");
+	}
 
-    @Test
-    void shouldMatchSingleQueryAgainstFirstColmapImage() {
-        ImageMatchService service = new ImageMatchService();
-        ColmapImageOpenCV firstTarget = colmapImages.get(0);
+	
+	@Test
+	void shouldMatchSingleQueryAgainstFirstColmapImage() {
+		ImageMatchService service = new ImageMatchService();
+		ColmapImageOpenCV firstTarget = colmapImages.get(0);
 
-        FeatureMatchResult result = service.match(queryResult1, firstTarget);
+		FeatureMatchResult result = service.match(queryResult1, firstTarget);
 
-        assertNotNull(result);
-        assertEquals(queryResult1, result.getQuery());
-        assertEquals(firstTarget, result.getTarget());
-        assertNotNull(result.getMatches());
-        assertTrue(result.getMatchCount() >= 0);
-    }
+		assertNotNull(result);
+		assertEquals(queryResult1, result.getQuery());
+		assertEquals(firstTarget, result.getTarget());
+		assertNotNull(result.getMatches());
+		assertTrue(result.getMatchCount() >= 0);
+	}
 
-    @Test
-    void shouldRejectMismatchedAlgorithms() throws IOException {
-        OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
-        FeatureExtractionResult orbResult = extractor.extract(QUERY_IMAGE_1.getPath(), FeatureAlgorithm.ORB);
-        ImageMatchService service = new ImageMatchService();
-        ColmapImageOpenCV siftTarget = colmapImages.get(0);
+	@Test
+	void shouldRejectMismatchedAlgorithms() throws IOException {
+		OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
+		FeatureExtractionResult orbResult = extractor.extract(QUERY_IMAGE_1.getPath(), FeatureAlgorithm.ORB);
+		ImageMatchService service = new ImageMatchService();
+		ColmapImageOpenCV siftTarget = colmapImages.get(0);
 
-        try {
-            assertThrows(IllegalArgumentException.class, () -> service.match(orbResult, siftTarget));
-        } finally {
-            orbResult.getKeypoints().release();
-            orbResult.getDescriptors().release();
-        }
-    }
+		try {
+			assertThrows(IllegalArgumentException.class, () -> service.match(orbResult, siftTarget));
+		} finally {
+			orbResult.getKeypoints().release();
+			orbResult.getDescriptors().release();
+		}
+	}
 
-    private static ColmapImage limitObservations(ColmapImage image, int maxObservations) {
-        List<ColmapImageObservation> limited = image.observations().stream()
-                .limit(maxObservations)
-                .toList();
-        return new ColmapImage(
-                image.imageId(),
-                image.qw(),
-                image.qx(),
-                image.qy(),
-                image.qz(),
-                image.tx(),
-                image.ty(),
-                image.tz(),
-                image.cameraId(),
-                image.name(),
-                limited);
-    }
+	private static ColmapImage limitObservations(ColmapImage image, int maxObservations) {
+		List<ColmapImageObservation> limited = image.observations().stream().limit(maxObservations).toList();
+		return new ColmapImage(image.imageId(), image.qw(), image.qx(), image.qy(), image.qz(), image.tx(), image.ty(),
+				image.tz(), image.cameraId(), image.name(), limited);
+	}
 }

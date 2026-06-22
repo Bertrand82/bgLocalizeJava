@@ -10,7 +10,7 @@ public final class ColmapImageOpenCV {
     private final ColmapImage colmapImage;
     private final String imageName;
     private final FeatureAlgorithm algorithm;
-    private final List<ColmapImageObservationOpenCV> observationFeatures;
+    private final List<ColmapImageObservationOpenCV> observationFeaturesOpenCv;
 
     public ColmapImageOpenCV(
             ColmapImage colmapImage,
@@ -20,8 +20,7 @@ public final class ColmapImageOpenCV {
         this.colmapImage = Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         this.imageName = Objects.requireNonNull(imageName, "imageName must not be null");
         this.algorithm = Objects.requireNonNull(algorithm, "algorithm must not be null");
-        this.observationFeatures = List.copyOf(
-                Objects.requireNonNull(observationFeatures, "observationFeatures must not be null"));
+        this.observationFeaturesOpenCv = observationFeatures;
     }
 
     public ColmapImage getColmapImage() {
@@ -37,12 +36,19 @@ public final class ColmapImageOpenCV {
     }
 
     public List<ColmapImageObservationOpenCV> getObservationFeatures() {
-        return observationFeatures;
+        return observationFeaturesOpenCv;
     }
 
     public void releaseDescriptors() {
-        for (ColmapImageObservationOpenCV observationFeature : observationFeatures) {
+        for (ColmapImageObservationOpenCV observationFeature : observationFeaturesOpenCv) {
             observationFeature.getDescriptor().release();
         }
     }
+
+	@Override
+	public String toString() {
+		return "ColmapImageOpenCV2 [colmapImage=" + colmapImage.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
+				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +colmapImage.observations().size()+ "]";
+	}
+    
 }

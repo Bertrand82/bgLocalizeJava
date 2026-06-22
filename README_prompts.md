@@ -251,7 +251,7 @@ ColmapImageOpenCVFactory fournira ce service.
 
 ## Match entre 1 image et n ColmapImageOpenCV
 Je voudrai un service qui utilise openCv pour tester le match entre une image et n ColmapImageOpenCV
-Une image , APres avoir recuperé FeatureExtractionResult de cette image  
+En test les 2 images (./data/BG.jpg et ./data/BG_1.jpg) , Apres avoir recuperé FeatureExtractionResult de ces images, seront testés contre l'ensemble des images recupérés dans ./data/BG/sparse/0  ,
 
 
 

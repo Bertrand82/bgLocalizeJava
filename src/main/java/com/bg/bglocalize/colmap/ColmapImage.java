@@ -17,7 +17,6 @@ public record ColmapImage(
         List<ColmapImageObservation> observations) {
 
     public ColmapImage {
-        Objects.requireNonNull(name, "name must not be null");
         observations = List.copyOf(Objects.requireNonNull(observations, "observations must not be null"));
     }
 }

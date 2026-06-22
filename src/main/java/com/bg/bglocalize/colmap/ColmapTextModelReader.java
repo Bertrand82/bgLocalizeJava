@@ -113,7 +113,7 @@ public final class ColmapTextModelReader {
                     Double.parseDouble(tokens[i + 1]),
                     Long.parseLong(tokens[i + 2])));
         }
-        return List.copyOf(observations);
+        return observations;
     }
 
     private static List<ColmapTrackElement> parseTrack(String[] tokens) {
