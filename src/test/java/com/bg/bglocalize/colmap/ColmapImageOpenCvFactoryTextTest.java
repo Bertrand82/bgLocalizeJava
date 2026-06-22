@@ -28,6 +28,7 @@ class ColmapImageOpenCvFactoryTextTest {
     private static final File DATABASE_FILE = new File("data/BG/database.db");
     private static final File IMAGES_DIRECTORY = new File("data/BG/images");
     private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
+    private static final int MAX_OBSERVATIONS = 8;
 
     private final ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
 
@@ -251,13 +252,26 @@ class ColmapImageOpenCvFactoryTextTest {
                 writer.newLine();
                 String observations = reader.readLine();
                 if (observations != null) {
-                    writer.write(observations);
+                    writer.write(limitObservations(observations, MAX_OBSERVATIONS));
                     writer.newLine();
                 }
                 return;
             }
         }
         throw new IllegalArgumentException("No image entry found in " + sourceImagesTxt);
+    }
+
+    private static String limitObservations(String observationsLine, int maxObservations) {
+        String[] tokens = observationsLine.trim().split("\\s+");
+        int maxTokens = Math.min(tokens.length, maxObservations * 3);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < maxTokens; i++) {
+            if (i > 0) {
+                builder.append(' ');
+            }
+            builder.append(tokens[i]);
+        }
+        return builder.toString();
     }
 
     private static Mat buildFloatDescriptor(int cols, float startValue, float step) {
