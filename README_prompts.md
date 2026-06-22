@@ -237,3 +237,12 @@ Développe une application Java utilisant OpenCV Java et SQLite JDBC pour faire 
 Je veux pouvoir lire une base sqlite colmap et avoir l'id d'une image à partir de son id : installe les dependances maven , crée une class avec un constructeur avec le  File de la database, et fait une requete permettant d'obtenir image_id (INTEGER) à partir de name (TEXT) dans la table "images" .
 Fait un test unitaire avec la base de donnée ./data/BG/database.db
 name="IMG_20260618_124549.jpg" image_id=1
+
+## TODO
+## Lecture des fichier colmap
+ Fait une api pour Lire les fichiers colmap images.txt et points3D.txt
+ fait des tests unitaires avec les fichiers ./data/BG/sparse/0/images.txt et ./data/BG/sparse/0/points3D.txt
+ 
+ 
+## Créer les features openCV de n colmapImage
+Je veux  pouvoir extraire les features opencv de n colmapImage à partir des points2d 
