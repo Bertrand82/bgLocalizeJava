@@ -40,6 +40,12 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- SQLite JDBC for reading COLMAP database.db -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.46.1.0</version>
+    </dependency>
     <!-- Pure-Java EXIF/metadata reading (video + image) -->
     <dependency>
       <groupId>com.drewnoakes</groupId>
