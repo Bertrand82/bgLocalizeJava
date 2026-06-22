@@ -238,11 +238,23 @@ Je veux pouvoir lire une base sqlite colmap et avoir l'id d'une image à partir 
 Fait un test unitaire avec la base de donnée ./data/BG/database.db
 name="IMG_20260618_124549.jpg" image_id=1
 
-## TODO
+
 ## Lecture des fichier colmap
  Fait une api pour Lire les fichiers colmap images.txt et points3D.txt
  fait des tests unitaires avec les fichiers ./data/BG/sparse/0/images.txt et ./data/BG/sparse/0/points3D.txt
  
  
 ## Créer les features openCV de n colmapImage
-Je veux  pouvoir extraire les features opencv de n colmapImage à partir des points2d 
+Je veux  pouvoir extraire les features opencv de n colmapImage à partir des points2d  decrit dans la classe ColmapImage:
+A partir d'une instance de ColmapImage, je veux pouvoir crer une instance de ColmapImageOpenCV qui comprendra comme variable: une ColmapImage, le nom de l'image (recuperer via ColmapDatabaseReader), les fetaures opencv correspondant à chaque ColmapImageObservation;
+ColmapImageOpenCVFactory fournira ce service.
+
+## Match entre 1 image et n ColmapImageOpenCV
+Je voudrai un service qui utilise openCv pour tester le match entre une image et n ColmapImageOpenCV
+Une image , APres avoir recuperé FeatureExtractionResult de cette image  
+
+
+
+
+
+
