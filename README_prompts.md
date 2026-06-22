@@ -232,3 +232,8 @@ séparation nette entre parsing, matching et estimation de pose.
 ## Version courte
 Développe une application Java utilisant OpenCV Java et SQLite JDBC pour faire correspondre les features d’une image requête avec les données d’une reconstruction COLMAP. Le programme doit lire database.db ainsi que images.txt, points3D.txt et cameras.txt, extraire les features de l’image requête, matcher les descripteurs avec ceux des images COLMAP, reconstruire les correspondances 2D–3D via les POINT3D_ID, puis estimer la pose avec solvePnPRansac. Le code doit être modulaire, documenté, exécutable en CLI, et inclure une gestion d’erreurs claire.
 
+
+## Extraction Data from colmap sqlite db
+Je veux pouvoir lire une base sqlite colmap et avoir l'id d'une image à partir de son id : installe les dependances maven , crée une class avec un constructeur avec le  File de la database, et fait une requete permettant d'obtenir image_id (INTEGER) à partir de name (TEXT) dans la table "images" .
+Fait un test unitaire avec la base de donnée ./data/BG/database.db
+name="IMG_20260618_124549.jpg" image_id=1
