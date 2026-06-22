@@ -2,9 +2,11 @@ package com.bg.bglocalize.colmap;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +33,28 @@ public final class ColmapImageOpenCvFactoryText {
 
     /** Number of whitespace-separated fields on an image header line. */
     private static final int IMAGE_HEADER_FIELD_COUNT = 10;
+
+    public List<ColmapImageOpenCV> createAllFromColmapTextAndWrite(
+            File databaseFile,
+            File imagesDirectory,
+            Path imagesTxtPath,
+            FeatureAlgorithm algorithm,
+            Path outputPath) throws IOException, SQLException {
+        Objects.requireNonNull(databaseFile, "databaseFile must not be null");
+        Objects.requireNonNull(imagesDirectory, "imagesDirectory must not be null");
+        Objects.requireNonNull(imagesTxtPath, "imagesTxtPath must not be null");
+        Objects.requireNonNull(algorithm, "algorithm must not be null");
+        Objects.requireNonNull(outputPath, "outputPath must not be null");
+
+        ColmapTextModelReader reader = new ColmapTextModelReader();
+        List<ColmapImage> images = reader.readImages(imagesTxtPath);
+
+        ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory);
+        System.out.println("Lecture images2D colmap  conversion openCv start");
+        List<ColmapImageOpenCV> colmapImagesOpenCV = factory.createAll(images, algorithm);
+        write(colmapImagesOpenCV, outputPath);
+        return List.copyOf(colmapImagesOpenCV);
+    }
 
     /**
      * Writes a list of {@link ColmapImageOpenCV} to a text file.

@@ -5,9 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +24,10 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
 import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 class ColmapImageOpenCvFactoryTextTest {
+
+    private static final File DATABASE_FILE = new File("data/BG/database.db");
+    private static final File IMAGES_DIRECTORY = new File("data/BG/images");
+    private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
 
     private final ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
 
@@ -199,7 +207,58 @@ class ColmapImageOpenCvFactoryTextTest {
                 () -> factoryText.read(Path.of("data", "BG", "sparse", "0", "missing-opencv.txt")));
     }
 
+    @Test
+    void shouldCreateOpenCvFromColmapTextAndWriteToOutputFile() throws IOException, SQLException {
+        Path oneImageTxt = Files.createTempFile("colmap_images_one_", ".txt");
+        Path outputTxt = Files.createTempFile("colmap_opencv_from_text_", ".txt");
+        List<ColmapImageOpenCV> created = List.of();
+        List<ColmapImageOpenCV> reloaded = List.of();
+        try {
+            writeFirstImageEntry(IMAGES_TXT.toPath(), oneImageTxt);
+
+            created = factoryText.createAllFromColmapTextAndWrite(
+                    DATABASE_FILE,
+                    IMAGES_DIRECTORY,
+                    oneImageTxt,
+                    FeatureAlgorithm.SIFT,
+                    outputTxt);
+            reloaded = factoryText.read(outputTxt);
+
+            assertEquals(1, created.size());
+            assertEquals(1, reloaded.size());
+            assertEquals(FeatureAlgorithm.SIFT, created.get(0).getAlgorithm());
+            assertEquals(created.get(0).getColmapImage().imageId(), reloaded.get(0).getColmapImage().imageId());
+            assertTrue(Files.size(outputTxt) > 0L);
+        } finally {
+            releaseDescriptors(created);
+            releaseDescriptors(reloaded);
+            Files.deleteIfExists(oneImageTxt);
+            Files.deleteIfExists(outputTxt);
+        }
+    }
+
     // --- helpers ---
+
+    private static void writeFirstImageEntry(Path sourceImagesTxt, Path destinationTxt) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(sourceImagesTxt);
+                BufferedWriter writer = Files.newBufferedWriter(destinationTxt)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.isBlank() || line.startsWith("#")) {
+                    continue;
+                }
+                writer.write(line);
+                writer.newLine();
+                String observations = reader.readLine();
+                if (observations != null) {
+                    writer.write(observations);
+                    writer.newLine();
+                }
+                return;
+            }
+        }
+        throw new IllegalArgumentException("No image entry found in " + sourceImagesTxt);
+    }
 
     private static Mat buildFloatDescriptor(int cols, float startValue, float step) {
         Mat desc = new Mat(1, cols, CvType.CV_32F);
