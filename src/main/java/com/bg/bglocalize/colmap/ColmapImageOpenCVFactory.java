@@ -24,6 +24,10 @@ public final class ColmapImageOpenCVFactory implements Closeable {
 
     private static final float DEFAULT_KEYPOINT_SIZE = 31.0f;
 
+    /** Squared distance threshold (pixels²) for matching a computed keypoint to its input position.
+     *  Corresponds to a 2-pixel radius, sufficient to absorb sub-pixel refinements made by the extractor. */
+    private static final float KEYPOINT_MATCH_DISTANCE_SQ = 4.0f;
+
     private final ColmapDatabaseReader databaseReader;
     private final File imagesDirectory;
     private final ImageLoader imageLoader;
@@ -133,7 +137,7 @@ public final class ColmapImageOpenCVFactory implements Closeable {
                     KeyPoint kp;
                     Mat descriptor;
                     if (computedIdx < computedKps.length
-                            && distanceSq(inputKps[i], computedKps[computedIdx]) < 4.0f) {
+                            && distanceSq(inputKps[i], computedKps[computedIdx]) < KEYPOINT_MATCH_DISTANCE_SQ) {
                         kp = computedKps[computedIdx];
                         descriptor = allDescriptors.empty() ? new Mat() : allDescriptors.row(computedIdx).clone();
                         computedIdx++;
@@ -154,6 +158,7 @@ public final class ColmapImageOpenCVFactory implements Closeable {
         }
     }
 
+    /** Returns the squared Euclidean distance (in pixels²) between two keypoint positions. */
     private static float distanceSq(KeyPoint a, KeyPoint b) {
         float dx = (float) a.pt.x - (float) b.pt.x;
         float dy = (float) a.pt.y - (float) b.pt.y;
