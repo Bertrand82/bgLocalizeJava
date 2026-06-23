@@ -44,7 +44,7 @@ class ColmapImageOpenCvFactoryTextTest {
         Mat desc = buildFloatDescriptor(128, 0.0f, 1.0f / 128);
 
         ColmapImageObservationOpenCV obsFeature = new ColmapImageObservationOpenCV(obs, kp, desc);
-        ColmapImage ci = new ColmapImage(1L, 0.965, 0.039, 0.258, -0.004, 2.712, -0.871, 2.945, 1L,
+        ColmapImage2D ci = new ColmapImage2D(1L, 0.965, 0.039, 0.258, -0.004, 2.712, -0.871, 2.945, 1L,
                 "IMG_20260618_124549.jpg", List.of(obs));
         ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT, List.of(obsFeature));
@@ -86,9 +86,9 @@ class ColmapImageOpenCvFactoryTextTest {
         Mat desc2a = buildFloatDescriptor(128, 1.0f, 1.0f);
         Mat desc2b = buildFloatDescriptor(128, 2.0f, 1.0f);
 
-        ColmapImage ci1 = new ColmapImage(1L, 0.9, 0.1, 0.0, 0.0, 1.0, 2.0, 3.0, 1L,
+        ColmapImage2D ci1 = new ColmapImage2D(1L, 0.9, 0.1, 0.0, 0.0, 1.0, 2.0, 3.0, 1L,
                 "image1.jpg", List.of(obs1));
-        ColmapImage ci2 = new ColmapImage(2L, 0.8, 0.2, 0.1, 0.0, 4.0, 5.0, 6.0, 1L,
+        ColmapImage2D ci2 = new ColmapImage2D(2L, 0.8, 0.2, 0.1, 0.0, 4.0, 5.0, 6.0, 1L,
                 "image2.jpg", List.of(obs2a, obs2b));
 
         ColmapImageOpenCV image1 = new ColmapImageOpenCV(ci1, "image1.jpg", FeatureAlgorithm.SIFT,
@@ -128,7 +128,7 @@ class ColmapImageOpenCvFactoryTextTest {
         Mat emptyDesc = new Mat();
 
         ColmapImageObservationOpenCV obsFeature = new ColmapImageObservationOpenCV(obs, kp, emptyDesc);
-        ColmapImage ci = new ColmapImage(3L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
+        ColmapImage2D ci = new ColmapImage2D(3L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
                 "empty.jpg", List.of(obs));
         ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "empty.jpg",
                 FeatureAlgorithm.ORB, List.of(obsFeature));
@@ -148,7 +148,7 @@ class ColmapImageOpenCvFactoryTextTest {
 
     @Test
     void shouldWriteAndReadBackImageWithNoObservations() throws IOException {
-        ColmapImage ci = new ColmapImage(4L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
+        ColmapImage2D ci = new ColmapImage2D(4L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
                 "noobs.jpg", List.of());
         ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "noobs.jpg",
                 FeatureAlgorithm.SIFT, List.of());
@@ -172,7 +172,7 @@ class ColmapImageOpenCvFactoryTextTest {
         KeyPoint kp = new KeyPoint(1.0f, 2.0f, 31.0f);
         Mat desc = new Mat();
 
-        ColmapImage ci = new ColmapImage(
+        ColmapImage2D ci = new ColmapImage2D(
                 99L, 0.96519351948199339, 0.039120325255590484,
                 0.2585553653980231, -0.0044936761960093895,
                 2.7123899170228367, -0.87102923280167643, 2.9455825074265096,
@@ -185,7 +185,7 @@ class ColmapImageOpenCvFactoryTextTest {
             factoryText.write(List.of(original), tempFile);
             List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
 
-            ColmapImage loadedCi = loaded.get(0).getColmapImage();
+            ColmapImage2D loadedCi = loaded.get(0).getColmapImage();
             assertEquals(99L, loadedCi.imageId());
             assertEquals(0.96519351948199339, loadedCi.qw());
             assertEquals(0.039120325255590484, loadedCi.qx());
@@ -284,7 +284,7 @@ class ColmapImageOpenCvFactoryTextTest {
         return desc;
     }
 
-    private static void assertColmapImageEquals(ColmapImage expected, ColmapImage actual) {
+    private static void assertColmapImageEquals(ColmapImage2D expected, ColmapImage2D actual) {
         assertEquals(expected.imageId(), actual.imageId());
         assertEquals(expected.qw(), actual.qw());
         assertEquals(expected.qx(), actual.qx());

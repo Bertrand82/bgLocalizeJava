@@ -40,7 +40,7 @@ public final class ColmapImageOpenCVFactory {
         }
     }
 
-    public ColmapImageOpenCV create(ColmapImage colmapImage, FeatureAlgorithm algorithm) throws SQLException {
+    public ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm) throws SQLException {
         Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         Objects.requireNonNull(algorithm, "algorithm must not be null");
 
@@ -62,10 +62,10 @@ public final class ColmapImageOpenCVFactory {
         }
     }
 
-    public List<ColmapImageOpenCV> createAll(List<ColmapImage> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
+    public List<ColmapImageOpenCV> createAll(List<ColmapImage2D> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
         List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
         
-        for (ColmapImage colmapImage : colmapImages) {
+        for (ColmapImage2D colmapImage : colmapImages) {
         	long timeStart = System.currentTimeMillis();
         	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
         	ColmapImageOpenCV cio = create(colmapImage, algorithm);

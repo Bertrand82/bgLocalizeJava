@@ -10,9 +10,9 @@ import java.util.Objects;
 
 public final class ColmapTextModelReader {
 
-    public List<ColmapImage> readImages(Path path) throws IOException {
+    public List<ColmapImage2D> readImages2D(Path path) throws IOException {
         Path normalizedPath = normalizePath(path);
-        List<ColmapImage> images = new ArrayList<>();
+        List<ColmapImage2D> images = new ArrayList<>();
 
         try (BufferedReader reader = Files.newBufferedReader(normalizedPath)) {
             String line;
@@ -32,7 +32,7 @@ public final class ColmapTextModelReader {
                 lineNumber++;
                 List<ColmapImageObservation> observations = parseObservations(observationsLine, lineNumber);
 
-                images.add(new ColmapImage(
+                images.add(new ColmapImage2D(
                         Long.parseLong(header[0]),
                         Double.parseDouble(header[1]),
                         Double.parseDouble(header[2]),
@@ -47,7 +47,7 @@ public final class ColmapTextModelReader {
             }
         }
 
-        return List.copyOf(images);
+        return images;
     }
 
     public List<ColmapPoint3D> readPoints3D(Path path) throws IOException {

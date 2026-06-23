@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.bg.bglocalize.colmap.ColmapImage;
+import com.bg.bglocalize.colmap.ColmapImage2D;
 import com.bg.bglocalize.colmap.ColmapImageObservation;
 import com.bg.bglocalize.colmap.ColmapImageOpenCV;
 import com.bg.bglocalize.colmap.ColmapImageOpenCVFactory;
@@ -51,7 +51,7 @@ class ImageMatchServiceTest {
 		queryResult2 = extractor.extract(QUERY_IMAGE_2.getPath(), ALGORITHM);
 		System.out.println("Lecture images2D colmap start");
 		ColmapTextModelReader reader = new ColmapTextModelReader();
-		List<ColmapImage> images = reader.readImages(IMAGES_TXT.toPath());
+		List<ColmapImage2D> images = reader.readImages2D(IMAGES_TXT.toPath());
 		System.out.println("Lecture images2D colmap done images.size "+images.size());
 		System.out.println("Lecture images2D colmap  openCV");
 		ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
@@ -139,9 +139,9 @@ class ImageMatchServiceTest {
 		}
 	}
 
-	private static ColmapImage limitObservations(ColmapImage image, int maxObservations) {
+	private static ColmapImage2D limitObservations(ColmapImage2D image, int maxObservations) {
 		List<ColmapImageObservation> limited = image.observations().stream().limit(maxObservations).toList();
-		return new ColmapImage(image.imageId(), image.qw(), image.qx(), image.qy(), image.qz(), image.tx(), image.ty(),
+		return new ColmapImage2D(image.imageId(), image.qw(), image.qx(), image.qy(), image.qz(), image.tx(), image.ty(),
 				image.tz(), image.cameraId(), image.name(), limited);
 	}
 }

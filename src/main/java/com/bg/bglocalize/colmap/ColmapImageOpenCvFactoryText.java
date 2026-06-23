@@ -47,7 +47,7 @@ public final class ColmapImageOpenCvFactoryText {
         Objects.requireNonNull(outputPath, "outputPath must not be null");
 
         ColmapTextModelReader reader = new ColmapTextModelReader();
-        List<ColmapImage> images = reader.readImages(imagesTxtPath);
+        List<ColmapImage2D> images = reader.readImages2D(imagesTxtPath);
 
         ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory);
         System.out.println("Lecture images2D colmap  conversion openCv start");
@@ -178,7 +178,7 @@ public final class ColmapImageOpenCvFactoryText {
                     observationFeatures.add(new ColmapImageObservationOpenCV(obs, keyPoint, descriptor));
                 }
 
-                ColmapImage colmapImage = new ColmapImage(
+                ColmapImage2D colmapImage = new ColmapImage2D(
                         imageId, qw, qx, qy, qz, tx, ty, tz, cameraId, name, colmapObservations);
                 images.add(new ColmapImageOpenCV(colmapImage, name, algorithm, observationFeatures));
             }
@@ -188,7 +188,7 @@ public final class ColmapImageOpenCvFactoryText {
     }
 
     private static void writeImage(BufferedWriter writer, ColmapImageOpenCV image) throws IOException {
-        ColmapImage ci = image.getColmapImage();
+        ColmapImage2D ci = image.getColmapImage();
 
         // Line 1: same convention as ColmapTextModelReader images.txt header
         StringBuilder headerLine = new StringBuilder();

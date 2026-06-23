@@ -7,13 +7,13 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
 
 public final class ColmapImageOpenCV {
 
-    private final ColmapImage colmapImage;
+    private final ColmapImage2D colmapImage;
     private final String imageName;
     private final FeatureAlgorithm algorithm;
     private final List<ColmapImageObservationOpenCV> observationFeaturesOpenCv;
 
     public ColmapImageOpenCV(
-            ColmapImage colmapImage,
+            ColmapImage2D colmapImage,
             String imageName,
             FeatureAlgorithm algorithm,
             List<ColmapImageObservationOpenCV> observationFeatures) {
@@ -23,7 +23,7 @@ public final class ColmapImageOpenCV {
         this.observationFeaturesOpenCv = observationFeatures;
     }
 
-    public ColmapImage getColmapImage() {
+    public ColmapImage2D getColmapImage() {
         return colmapImage;
     }
 

@@ -19,11 +19,11 @@ class ColmapTextModelReaderTest {
 
     @Test
     void shouldReadImagesFile() throws IOException {
-        List<ColmapImage> images = reader.readImages(IMAGES_PATH);
+        List<ColmapImage2D> images = reader.readImages2D(IMAGES_PATH);
 
         assertEquals(6, images.size());
 
-        ColmapImage firstImage = images.get(0);
+        ColmapImage2D firstImage = images.get(0);
         assertEquals(1L, firstImage.imageId());
         assertEquals("IMG_20260618_124549.jpg", firstImage.name());
         assertEquals(1L, firstImage.cameraId());
@@ -31,7 +31,7 @@ class ColmapTextModelReaderTest {
         assertEquals(new ColmapImageObservation(174.31248474121094, 7.6359057426452637, -1L),
                 firstImage.observations().get(0));
 
-        ColmapImage lastImage = images.get(images.size() - 1);
+        ColmapImage2D lastImage = images.get(images.size() - 1);
         assertEquals(10L, lastImage.imageId());
         assertEquals("IMG_20260618_124823.jpg", lastImage.name());
         assertEquals(8666, lastImage.observations().size());
@@ -59,7 +59,7 @@ class ColmapTextModelReaderTest {
     @Test
     void shouldRejectMissingFile() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> reader.readImages(Path.of("data", "BG", "sparse", "0", "missing-images.txt")));
+                () -> reader.readImages2D(Path.of("data", "BG", "sparse", "0", "missing-images.txt")));
 
         assertTrue(exception.getMessage().contains("COLMAP file not found"));
     }

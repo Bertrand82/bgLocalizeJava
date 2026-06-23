@@ -29,6 +29,11 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
         return extract(imageLoader.load(imagePath), algorithm);
     }
 
+ 
+    public FeatureExtractionResult extract(LoadedImage image) {
+    	return extract(image,FeatureAlgorithm.SIFT);
+    }
+
     @Override
     public FeatureExtractionResult extract(LoadedImage image, FeatureAlgorithm algorithm) {
         Objects.requireNonNull(image, "image must not be null");
@@ -65,4 +70,10 @@ public final class OpenCvFeatureExtractor implements FeatureExtractor {
             grayscale.release();
         }
     }
+
+	@Override
+	public FeatureExtractionResult extract(String imagePath) {
+		
+		return extract(imagePath, FeatureAlgorithm.SIFT);
+	}
 }

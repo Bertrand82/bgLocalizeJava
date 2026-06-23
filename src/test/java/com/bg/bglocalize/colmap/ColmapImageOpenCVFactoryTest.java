@@ -39,7 +39,7 @@ class ColmapImageOpenCVFactoryTest {
 
     @Test
     void shouldCreateOpenCvFeaturesForOneColmapImage() throws IOException, SQLException {
-        ColmapImage colmapImage = firstImageWithLimitedObservations(8);
+        ColmapImage2D colmapImage = firstImageWithLimitedObservations(8);
 
         ColmapImageOpenCV result = factory.create(colmapImage, FeatureAlgorithm.SIFT);
 
@@ -62,7 +62,7 @@ class ColmapImageOpenCVFactoryTest {
 
     @Test
     void shouldCreateOpenCvFeaturesForManyColmapImages() throws IOException, SQLException {
-        List<ColmapImage> images = reader.readImages(IMAGES_FILE.toPath()).stream()
+        List<ColmapImage2D> images = reader.readImages2D(IMAGES_FILE.toPath()).stream()
                 .limit(2)
                 .map(image -> copyWithLimitedObservations(image, 5))
                 .toList();
@@ -85,7 +85,7 @@ class ColmapImageOpenCVFactoryTest {
 
     @Test
     void shouldRejectObservationOutsideImageBounds() {
-        ColmapImage invalidImage = new ColmapImage(
+        ColmapImage2D invalidImage = new ColmapImage2D(
                 1L,
                 1.0,
                 0.0,
@@ -104,13 +104,13 @@ class ColmapImageOpenCVFactoryTest {
         assertTrue(exception.getMessage().contains("outside image bounds"));
     }
 
-    private ColmapImage firstImageWithLimitedObservations(int observationCount) throws IOException {
-        ColmapImage firstImage = reader.readImages(IMAGES_FILE.toPath()).get(0);
+    private ColmapImage2D firstImageWithLimitedObservations(int observationCount) throws IOException {
+        ColmapImage2D firstImage = reader.readImages2D(IMAGES_FILE.toPath()).get(0);
         return copyWithLimitedObservations(firstImage, observationCount);
     }
 
-    private static ColmapImage copyWithLimitedObservations(ColmapImage image, int observationCount) {
-        return new ColmapImage(
+    private static ColmapImage2D copyWithLimitedObservations(ColmapImage2D image, int observationCount) {
+        return new ColmapImage2D(
                 image.imageId(),
                 image.qw(),
                 image.qx(),
