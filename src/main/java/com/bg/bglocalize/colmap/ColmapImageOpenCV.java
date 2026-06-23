@@ -134,7 +134,5 @@ public final class ColmapImageOpenCV {
                 observationFeature.getDescriptor().type(),
                 observationFeature.getDescriptor().dump());
     }
-    
-    
-    
+
 }
