@@ -124,13 +124,24 @@ public final class ColmapImageOpenCVFactory implements Closeable {
                 extractor.compute(grayscale, keyPoints, allDescriptors);
                 KeyPoint[] computedKps = keyPoints.toArray();
 
+                // OpenCV may filter some keypoints during compute() (e.g. near-border points).
+                // Surviving keypoints preserve input order and approximately the same (x,y).
+                // We match greedily by position to keep the correct descriptor per observation.
                 List<ColmapImageObservationOpenCV> features = new ArrayList<>(observations.size());
+                int computedIdx = 0;
                 for (int i = 0; i < observations.size(); i++) {
-                    // computedKps are in the same order as inputKps; some may be filtered at the tail
-                    KeyPoint kp = (i < computedKps.length) ? computedKps[i] : inputKps[i];
-                    Mat descriptor = (!allDescriptors.empty() && i < allDescriptors.rows())
-                            ? allDescriptors.row(i).clone()
-                            : new Mat();
+                    KeyPoint kp;
+                    Mat descriptor;
+                    if (computedIdx < computedKps.length
+                            && distanceSq(inputKps[i], computedKps[computedIdx]) < 4.0f) {
+                        kp = computedKps[computedIdx];
+                        descriptor = allDescriptors.empty() ? new Mat() : allDescriptors.row(computedIdx).clone();
+                        computedIdx++;
+                    } else {
+                        // keypoint was filtered out by the extractor
+                        kp = inputKps[i];
+                        descriptor = new Mat();
+                    }
                     features.add(new ColmapImageObservationOpenCV(observations.get(i), kp, descriptor));
                 }
                 return features;
@@ -141,6 +152,12 @@ public final class ColmapImageOpenCVFactory implements Closeable {
         } finally {
             grayscale.release();
         }
+    }
+
+    private static float distanceSq(KeyPoint a, KeyPoint b) {
+        float dx = (float) a.pt.x - (float) b.pt.x;
+        float dy = (float) a.pt.y - (float) b.pt.y;
+        return dx * dx + dy * dy;
     }
 
     private static void validateObservation(ColmapImageObservation observation, LoadedImage image) {
