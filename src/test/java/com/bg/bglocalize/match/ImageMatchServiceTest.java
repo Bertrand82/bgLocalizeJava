@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,7 @@ class ImageMatchServiceTest {
 	private static List<ColmapImageOpenCV> colmapImages;
 	private static FeatureExtractionResult queryResult1;
 	private static FeatureExtractionResult queryResult2;
+	private static ColmapImageOpenCVFactory factory;
 
 	private static final int MAX_OBSERVATIONS_PER_IMAGE = 10;
 
@@ -54,10 +56,17 @@ class ImageMatchServiceTest {
 		List<ColmapImage2D> images = reader.readImages2D(IMAGES_TXT.toPath());
 		System.out.println("Lecture images2D colmap done images.size "+images.size());
 		System.out.println("Lecture images2D colmap  openCV");
-		ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
+		factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
 		System.out.println("Lecture images2D colmap  conversion openCv start");
 		colmapImages = factory.createAll(images, ALGORITHM);
 		System.out.println("Lecture images2D colmap  conversion openCv done");
+	}
+
+	@AfterAll
+	static void tearDown() throws Exception {
+		if (factory != null) {
+			factory.close();
+		}
 	}
 
 	@Test

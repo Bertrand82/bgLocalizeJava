@@ -1,6 +1,8 @@
 package com.bg.bglocalize.colmap;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,20 +13,31 @@ import java.util.OptionalLong;
 
 /**
  * Reads data from a COLMAP SQLite database (database.db).
+ *
+ * <p>Holds a single persistent JDBC connection for the lifetime of this object.
+ * Call {@link #close()} (or use try-with-resources) when done.
  */
-public final class ColmapDatabaseReader {
+public final class ColmapDatabaseReader implements Closeable {
 
-    private final String jdbcUrl;
+    private final Connection connection;
 
     /**
+     * Opens a persistent connection to the COLMAP database.
+     *
      * @param databaseFile path to the COLMAP database.db file
+     * @throws IllegalArgumentException if the file does not exist
+     * @throws IllegalStateException    if the connection cannot be opened
      */
     public ColmapDatabaseReader(File databaseFile) {
         Objects.requireNonNull(databaseFile, "databaseFile must not be null");
         if (!databaseFile.isFile()) {
             throw new IllegalArgumentException("COLMAP database file not found: " + databaseFile.getAbsolutePath());
         }
-        this.jdbcUrl = "jdbc:sqlite:" + databaseFile.getAbsolutePath();
+        try {
+            this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath());
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to open COLMAP database: " + databaseFile.getAbsolutePath(), e);
+        }
     }
 
     /**
@@ -37,8 +50,7 @@ public final class ColmapDatabaseReader {
     public OptionalLong findImageIdByName(String name) throws SQLException {
         Objects.requireNonNull(name, "name must not be null");
         String sql = "SELECT image_id FROM images WHERE name = ?";
-        try (Connection conn = DriverManager.getConnection(jdbcUrl);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -50,7 +62,7 @@ public final class ColmapDatabaseReader {
     }
 
     /**
-     * Returns the image name for the given image_id, or empty if not found.
+     * Returns the image name for the given image_id, or {@code null} if not found.
      *
      * @param imageId the COLMAP image_id
      * @return the image name, or {@code null} if not found
@@ -58,8 +70,7 @@ public final class ColmapDatabaseReader {
      */
     public String findNameByImageId(long imageId) throws SQLException {
         String sql = "SELECT name FROM images WHERE image_id = ?";
-        try (Connection conn = DriverManager.getConnection(jdbcUrl);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, imageId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -67,6 +78,15 @@ public final class ColmapDatabaseReader {
                 }
                 return null;
             }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new IOException("Failed to close COLMAP database connection", e);
         }
     }
 }

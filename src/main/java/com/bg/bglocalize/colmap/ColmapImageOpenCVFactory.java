@@ -1,6 +1,8 @@
 package com.bg.bglocalize.colmap;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import com.bg.bglocalize.image.ImageLoader;
 import com.bg.bglocalize.image.LoadedImage;
 import com.bg.bglocalize.opencv.OpenCvInitializer;
 
-public final class ColmapImageOpenCVFactory {
+public final class ColmapImageOpenCVFactory implements Closeable {
 
     private static final float DEFAULT_KEYPOINT_SIZE = 31.0f;
 
@@ -38,12 +40,36 @@ public final class ColmapImageOpenCVFactory {
         if (!this.imagesDirectory.isDirectory()) {
             throw new IllegalArgumentException("Images directory not found: " + this.imagesDirectory.getAbsolutePath());
         }
+        OpenCvInitializer.initialize();
     }
 
     public ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm) throws SQLException {
         Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         Objects.requireNonNull(algorithm, "algorithm must not be null");
+        return create(colmapImage, algorithm, algorithm.createExtractor());
+    }
 
+    public List<ColmapImageOpenCV> createAll(List<ColmapImage2D> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
+        List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
+        Feature2D extractor = algorithm.createExtractor();
+
+        for (ColmapImage2D colmapImage : colmapImages) {
+        	long timeStart = System.currentTimeMillis();
+        	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
+        	ColmapImageOpenCV cio = create(colmapImage, algorithm, extractor);
+        	System.out.println(" done  :"+getDeltaTime(timeStart)+"  "+cio);
+            results.add(cio);
+        }
+        return results;
+    }
+
+    @Override
+    public void close() throws IOException {
+        databaseReader.close();
+    }
+
+    private ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm, Feature2D extractor)
+            throws SQLException {
         String imageName = databaseReader.findNameByImageId(colmapImage.imageId());
         if (imageName == null || imageName.isBlank()) {
             throw new IllegalArgumentException("Unable to find image name for COLMAP image_id=" + colmapImage.imageId());
@@ -55,24 +81,11 @@ public final class ColmapImageOpenCVFactory {
             List<ColmapImageObservationOpenCV> observationFeatures = extractObservationFeatures(
                     loadedImage,
                     colmapImage.observations(),
-                    algorithm);
+                    extractor);
             return new ColmapImageOpenCV(colmapImage, imageName, algorithm, observationFeatures);
         } finally {
             loadedImage.getImage().release();
         }
-    }
-
-    public List<ColmapImageOpenCV> createAll(List<ColmapImage2D> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
-        List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
-        
-        for (ColmapImage2D colmapImage : colmapImages) {
-        	long timeStart = System.currentTimeMillis();
-        	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
-        	ColmapImageOpenCV cio = create(colmapImage, algorithm);
-        	System.out.println(" done  :"+getDeltaTime(timeStart)+"  "+cio);
-            results.add(cio);
-        }
-        return results;
     }
 
     private String getDeltaTime(long timeStart) {
@@ -83,12 +96,9 @@ public final class ColmapImageOpenCVFactory {
 	private List<ColmapImageObservationOpenCV> extractObservationFeatures(
             LoadedImage image,
             List<ColmapImageObservation> observations,
-            FeatureAlgorithm algorithm) {
-            OpenCvInitializer.initialize();
+            Feature2D extractor) {
 
         Mat grayscale = new Mat();
-        Feature2D extractor = algorithm.createExtractor();
-
         try {
             Mat sourceImage = image.getImage();
             if (sourceImage.channels() > 1) {
@@ -97,34 +107,39 @@ public final class ColmapImageOpenCVFactory {
                 sourceImage.copyTo(grayscale);
             }
 
-            List<ColmapImageObservationOpenCV> features = new ArrayList<>(observations.size());
             for (ColmapImageObservation observation : observations) {
                 validateObservation(observation, image);
-                features.add(extractObservationFeature(grayscale, extractor, observation));
             }
-            return features;
+
+            // Build all keypoints at once for a single batch compute() call per image
+            KeyPoint[] inputKps = new KeyPoint[observations.size()];
+            for (int i = 0; i < observations.size(); i++) {
+                ColmapImageObservation obs = observations.get(i);
+                inputKps[i] = new KeyPoint((float) obs.x(), (float) obs.y(), DEFAULT_KEYPOINT_SIZE);
+            }
+
+            MatOfKeyPoint keyPoints = new MatOfKeyPoint(inputKps);
+            Mat allDescriptors = new Mat();
+            try {
+                extractor.compute(grayscale, keyPoints, allDescriptors);
+                KeyPoint[] computedKps = keyPoints.toArray();
+
+                List<ColmapImageObservationOpenCV> features = new ArrayList<>(observations.size());
+                for (int i = 0; i < observations.size(); i++) {
+                    // computedKps are in the same order as inputKps; some may be filtered at the tail
+                    KeyPoint kp = (i < computedKps.length) ? computedKps[i] : inputKps[i];
+                    Mat descriptor = (!allDescriptors.empty() && i < allDescriptors.rows())
+                            ? allDescriptors.row(i).clone()
+                            : new Mat();
+                    features.add(new ColmapImageObservationOpenCV(observations.get(i), kp, descriptor));
+                }
+                return features;
+            } finally {
+                keyPoints.release();
+                allDescriptors.release();
+            }
         } finally {
             grayscale.release();
-        }
-    }
-
-    private static ColmapImageObservationOpenCV extractObservationFeature(
-            Mat grayscale,
-            Feature2D extractor,
-            ColmapImageObservation observation) {
-        KeyPoint inputKeyPoint = new KeyPoint((float) observation.x(), (float) observation.y(), DEFAULT_KEYPOINT_SIZE);
-        MatOfKeyPoint keyPoints = new MatOfKeyPoint(inputKeyPoint);
-        Mat descriptor = new Mat();
-
-        try {
-            extractor.compute(grayscale, keyPoints, descriptor);
-            KeyPoint[] computedKeyPoints = keyPoints.toArray();
-            KeyPoint featureKeyPoint = computedKeyPoints.length == 0 ? inputKeyPoint : computedKeyPoints[0];
-            Mat descriptorCopy = descriptor.empty() ? new Mat() : descriptor.clone();
-            return new ColmapImageObservationOpenCV(observation, featureKeyPoint, descriptorCopy);
-        } finally {
-            keyPoints.release();
-            descriptor.release();
         }
     }
 

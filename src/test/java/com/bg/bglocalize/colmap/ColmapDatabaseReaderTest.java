@@ -10,6 +10,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.OptionalLong;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,11 @@ class ColmapDatabaseReaderTest {
     @BeforeEach
     void setUp() {
         reader = new ColmapDatabaseReader(DATABASE_FILE);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        reader.close();
     }
 
     @Test
