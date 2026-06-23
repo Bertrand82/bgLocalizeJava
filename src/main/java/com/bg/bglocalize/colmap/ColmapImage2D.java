@@ -2,6 +2,7 @@ package com.bg.bglocalize.colmap;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public record ColmapImage2D(
         long imageId,
@@ -17,6 +18,8 @@ public record ColmapImage2D(
         List<ColmapImageObservation> observations) {
 
     public ColmapImage2D {
-        observations = List.copyOf(Objects.requireNonNull(observations, "observations must not be null"));
+        observations = Objects.requireNonNull(observations, "observations must not be null").stream()
+                .filter(o -> o.point3DId() != -1)
+                .collect(Collectors.toUnmodifiableList());
     }
 }

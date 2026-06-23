@@ -27,14 +27,14 @@ class ColmapTextModelReaderTest {
         assertEquals(1L, firstImage.imageId());
         assertEquals("IMG_20260618_124549.jpg", firstImage.name());
         assertEquals(1L, firstImage.cameraId());
-        assertEquals(8444, firstImage.observations().size());
-        assertEquals(new ColmapImageObservation(174.31248474121094, 7.6359057426452637, -1L),
+        assertEquals(134, firstImage.observations().size());
+        assertEquals(new ColmapImageObservation(3141.588623046875, 1104.3594970703125, 1157L),
                 firstImage.observations().get(0));
 
         ColmapImage2D lastImage = images.get(images.size() - 1);
         assertEquals(10L, lastImage.imageId());
         assertEquals("IMG_20260618_124823.jpg", lastImage.name());
-        assertEquals(8666, lastImage.observations().size());
+        assertEquals(778, lastImage.observations().size());
     }
 
     @Test
