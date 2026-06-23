@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,11 @@ class ColmapImageOpenCVFactoryTest {
     @BeforeEach
     void setUp() {
         factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        factory.close();
     }
 
     @Test

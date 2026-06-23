@@ -49,9 +49,11 @@ public final class ColmapImageOpenCvFactoryText {
         ColmapTextModelReader reader = new ColmapTextModelReader();
         List<ColmapImage2D> images = reader.readImages2D(imagesTxtPath);
 
-        ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory);
+        List<ColmapImageOpenCV> colmapImagesOpenCV;
         System.out.println("Lecture images2D colmap  conversion openCv start");
-        List<ColmapImageOpenCV> colmapImagesOpenCV = factory.createAll(images, algorithm);
+        try (ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory)) {
+            colmapImagesOpenCV = factory.createAll(images, algorithm);
+        }
         write(colmapImagesOpenCV, outputPath);
         return List.copyOf(colmapImagesOpenCV);
     }
