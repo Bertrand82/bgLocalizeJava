@@ -39,10 +39,14 @@ public class MainPrepareFilesText {
     	 OpenCvInitializer.initialize();
          File PROJET_DIRECTORY = new File("data/BG");
        
-        new MainPrepareFilesText(PROJET_DIRECTORY).process();
+        new MainPrepareFilesText(PROJET_DIRECTORY).processTrace();
     }
 
-    public void process() throws Exception{
+    /**
+     * Je veux essayer d'examiner si les keyPoint de OpenCv correspondent au keypoints de colmap
+     * @throws Exception
+     */
+    public void processTrace() throws Exception{
     	long timeStart = System.currentTimeMillis();
     	System.out.println("Read2D start");
         List<ColmapImage2D> images = reader.readImages2D(image2D_Txt.toPath());
@@ -54,6 +58,7 @@ public class MainPrepareFilesText {
         	System.out.println("fileName "+fileName+ "  exists: "+file.exists()+ " colmapImage2D.observations.size : "+colmapImage2D.observations().size()+"  FeatureExtractionResult.getKeypointCount "+result.getKeypointCount());
         	KeyPoint[] keysOpenCv = result.getKeypoints().toArray();
         	System.out.println("keysOpenCv length "+keysOpenCv.length);
+        	// Matching entre keyPoint de colmap et keypoint de openCV
         	List<KeyPoint> listReferenced = new ArrayList<KeyPoint>();
         	for (KeyPoint koc : keysOpenCv) {
         		if (isReferencedInColmap(koc, colmapImage2D)) {
