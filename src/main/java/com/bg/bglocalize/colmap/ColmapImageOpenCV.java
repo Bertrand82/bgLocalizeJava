@@ -1,9 +1,12 @@
 package com.bg.bglocalize.colmap;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import com.bg.bglocalize.features.FeatureAlgorithm;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
 public final class ColmapImageOpenCV {
 
@@ -105,10 +108,7 @@ public final class ColmapImageOpenCV {
     }
 
     private static boolean descriptorEquals(ColmapImageObservationOpenCV left, ColmapImageObservationOpenCV right) {
-        return left.getDescriptor().rows() == right.getDescriptor().rows()
-                && left.getDescriptor().cols() == right.getDescriptor().cols()
-                && left.getDescriptor().type() == right.getDescriptor().type()
-                && Objects.equals(left.getDescriptor().dump(), right.getDescriptor().dump());
+        return descriptorEquals(left.getDescriptor(), right.getDescriptor());
     }
 
     private static int observationFeaturesHashCode(List<ColmapImageObservationOpenCV> observationFeatures) {
@@ -129,10 +129,89 @@ public final class ColmapImageOpenCV {
                 Float.floatToIntBits(observationFeature.getKeyPoint().response),
                 observationFeature.getKeyPoint().octave,
                 observationFeature.getKeyPoint().class_id,
-                observationFeature.getDescriptor().rows(),
-                observationFeature.getDescriptor().cols(),
-                observationFeature.getDescriptor().type(),
-                observationFeature.getDescriptor().dump());
+                descriptorHashCode(observationFeature.getDescriptor()));
+    }
+
+    private static boolean descriptorEquals(Mat left, Mat right) {
+        if (left.rows() != right.rows() || left.cols() != right.cols() || left.type() != right.type()) {
+            return false;
+        }
+
+        int elementCount = descriptorElementCount(left);
+        return switch (CvType.depth(left.type())) {
+            case CvType.CV_8U, CvType.CV_8S -> {
+                byte[] leftData = new byte[elementCount];
+                byte[] rightData = new byte[elementCount];
+                left.get(0, 0, leftData);
+                right.get(0, 0, rightData);
+                yield Arrays.equals(leftData, rightData);
+            }
+            case CvType.CV_16U, CvType.CV_16S -> {
+                short[] leftData = new short[elementCount];
+                short[] rightData = new short[elementCount];
+                left.get(0, 0, leftData);
+                right.get(0, 0, rightData);
+                yield Arrays.equals(leftData, rightData);
+            }
+            case CvType.CV_32S -> {
+                int[] leftData = new int[elementCount];
+                int[] rightData = new int[elementCount];
+                left.get(0, 0, leftData);
+                right.get(0, 0, rightData);
+                yield Arrays.equals(leftData, rightData);
+            }
+            case CvType.CV_32F -> {
+                float[] leftData = new float[elementCount];
+                float[] rightData = new float[elementCount];
+                left.get(0, 0, leftData);
+                right.get(0, 0, rightData);
+                yield Arrays.equals(leftData, rightData);
+            }
+            case CvType.CV_64F -> {
+                double[] leftData = new double[elementCount];
+                double[] rightData = new double[elementCount];
+                left.get(0, 0, leftData);
+                right.get(0, 0, rightData);
+                yield Arrays.equals(leftData, rightData);
+            }
+            default -> throw new IllegalArgumentException("Unsupported descriptor type: " + left.type());
+        };
+    }
+
+    private static int descriptorHashCode(Mat descriptor) {
+        int elementCount = descriptorElementCount(descriptor);
+        return switch (CvType.depth(descriptor.type())) {
+            case CvType.CV_8U, CvType.CV_8S -> {
+                byte[] data = new byte[elementCount];
+                descriptor.get(0, 0, data);
+                yield Objects.hash(descriptor.rows(), descriptor.cols(), descriptor.type(), Arrays.hashCode(data));
+            }
+            case CvType.CV_16U, CvType.CV_16S -> {
+                short[] data = new short[elementCount];
+                descriptor.get(0, 0, data);
+                yield Objects.hash(descriptor.rows(), descriptor.cols(), descriptor.type(), Arrays.hashCode(data));
+            }
+            case CvType.CV_32S -> {
+                int[] data = new int[elementCount];
+                descriptor.get(0, 0, data);
+                yield Objects.hash(descriptor.rows(), descriptor.cols(), descriptor.type(), Arrays.hashCode(data));
+            }
+            case CvType.CV_32F -> {
+                float[] data = new float[elementCount];
+                descriptor.get(0, 0, data);
+                yield Objects.hash(descriptor.rows(), descriptor.cols(), descriptor.type(), Arrays.hashCode(data));
+            }
+            case CvType.CV_64F -> {
+                double[] data = new double[elementCount];
+                descriptor.get(0, 0, data);
+                yield Objects.hash(descriptor.rows(), descriptor.cols(), descriptor.type(), Arrays.hashCode(data));
+            }
+            default -> throw new IllegalArgumentException("Unsupported descriptor type: " + descriptor.type());
+        };
+    }
+
+    private static int descriptorElementCount(Mat descriptor) {
+        return Math.toIntExact(descriptor.total() * descriptor.channels());
     }
 
 }
