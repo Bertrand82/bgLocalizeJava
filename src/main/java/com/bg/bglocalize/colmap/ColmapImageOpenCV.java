@@ -54,6 +54,25 @@ public final class ColmapImageOpenCV {
 	public List<ColmapImageObservationOpenCV> getObservationFeaturesOpenCv() {
 		return observationFeaturesOpenCv;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(algorithm, colmapImage, imageName, observationFeaturesOpenCv);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ColmapImageOpenCV other = (ColmapImageOpenCV) obj;
+		return algorithm == other.algorithm && Objects.equals(colmapImage, other.colmapImage)
+				&& Objects.equals(imageName, other.imageName)
+				&& Objects.equals(observationFeaturesOpenCv, other.observationFeaturesOpenCv);
+	}
 	
 	
     

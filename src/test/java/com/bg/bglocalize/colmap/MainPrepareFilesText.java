@@ -19,6 +19,8 @@ public class MainPrepareFilesText {
     private final File imagesDirectory;
     private final File image2D_Txt;
     private final File dataBaseFile ;
+    private final File dirTarget = new File("target");
+    private final File dirOut = new File(dirTarget,"OUT_bg");
     
     private static final File IMAGES_DIRECTORY = new File("data/BG/images");
 
@@ -56,6 +58,15 @@ public class MainPrepareFilesText {
         List<ColmapImageOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
         System.out.println("rocess2DOpenCv  done "+getDuree(timeStart));
         System.out.println("Generated: " + listColmapImageOpenCV.size()  +" / ");
+        
+        ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
+        dirOut.mkdirs();
+        File tempFile = new File(dirOut,"imagesOpenCV.txt");
+        factoryText.write(listColmapImageOpenCV, tempFile.toPath());
+        System.out.println(" factoryText.write  done "+getDuree(timeStart)+"  "+tempFile.toPath());
+        List<ColmapImageOpenCV>  listRead = factoryText.read(tempFile.toPath());
+        System.out.println(" factoryText.read  done "+getDuree(timeStart)+"  "+tempFile.toPath());
+        System.out.println("equals "+listRead.equals(listColmapImageOpenCV));
     }
 
   

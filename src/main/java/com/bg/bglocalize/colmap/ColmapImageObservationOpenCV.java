@@ -32,4 +32,24 @@ public final class ColmapImageObservationOpenCV {
     public boolean hasDescriptor() {
         return !descriptor.empty();
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(descriptor, keyPoint, observation);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ColmapImageObservationOpenCV other = (ColmapImageObservationOpenCV) obj;
+		return Objects.equals(descriptor, other.descriptor) && Objects.equals(keyPoint, other.keyPoint)
+				&& Objects.equals(observation, other.observation);
+	}
+    
+    
 }
