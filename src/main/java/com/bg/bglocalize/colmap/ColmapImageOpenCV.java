@@ -66,7 +66,7 @@ public final class ColmapImageOpenCV {
 
 	@Override
 	public String toString() {
-		return "ColmapImageOpenCV2 [colmapImage=" + colmapImage.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
+		return "ColmapImageOpenCV [colmapImage=" + colmapImage.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
 				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +colmapImage.observations().size()+ "]";
 	}
 
