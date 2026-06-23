@@ -12,7 +12,7 @@ import com.bg.bglocalize.features.FeatureExtractionResult;
 import com.bg.bglocalize.features.OpenCvFeatureExtractor;
 import com.bg.bglocalize.opencv.OpenCvInitializer;
 
-public class MainPrepareFilesText {
+public class MainPrepareFilesText2 {
 
     private static final ColmapTextModelReader reader = new ColmapTextModelReader();
     private final File projetDirectory;
@@ -25,7 +25,7 @@ public class MainPrepareFilesText {
     // ✅ Déclaration + initialisation de factory
     private final ColmapImageOpenCVFactory factory ;
     
-    public MainPrepareFilesText(File projetDirectory) throws Exception {
+    public MainPrepareFilesText2(File projetDirectory) throws Exception {
     	this.projetDirectory = projetDirectory;
     	this.imagesDirectory = new File(projetDirectory,"images");
     	this.dataBaseFile = new File(projetDirectory,"database.db");
@@ -39,7 +39,7 @@ public class MainPrepareFilesText {
     	 OpenCvInitializer.initialize();
          File PROJET_DIRECTORY = new File("data/BG");
        
-        new MainPrepareFilesText(PROJET_DIRECTORY).processTrace();
+        new MainPrepareFilesText2(PROJET_DIRECTORY).processTrace();
     }
 
     /**
@@ -51,14 +51,27 @@ public class MainPrepareFilesText {
     	System.out.println("Read2D start");
         List<ColmapImage2D> images = reader.readImages2D(image2D_Txt.toPath());
         System.out.println("Read2D done "+getDuree(timeStart)+"   images.size : "+images.size());
-        
+        ColmapImageOpenCVFactory colmapImageOpenCvFactory = new ColmapImageOpenCVFactory(dataBaseFile, imagesDirectory);
+        for (ColmapImage2D colmapImage2D : images) {
+        	ColmapImageOpenCV ciopcv  = colmapImageOpenCvFactory.create(colmapImage2D);
+        	System.out.println("ciopcv ::: "+ciopcv);
+        	 System.out.println("create done "+getDuree(timeStart)+"   ciopcv.getObservationFeatures.size : "+ciopcv.getObservationFeatures().size());
+        }
         System.out.println("Process2DOpenCv start ");
-        List<ColmapImageOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
+        List<ColmapImageOpenCV> results = factory.createAll(images, FeatureAlgorithm.SIFT);
         System.out.println("rocess2DOpenCv  done "+getDuree(timeStart));
-        System.out.println("Generated: " + listColmapImageOpenCV.size()  +" / ");
+        System.out.println("Generated: " + results.size());
     }
 
-  
+    private boolean isReferencedInColmap(KeyPoint koc, ColmapImage2D colmapImage2D) {
+		for(ColmapImageObservation feature : colmapImage2D.observations()) {
+			if ((koc.pt.x == feature.x()) && (koc.pt.y == feature.y())){
+				return true;
+			}
+			
+		}
+		return false;
+	}
 
 	long timeEtape = -1;
 	private String getDuree(long timeStart) {

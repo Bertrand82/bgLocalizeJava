@@ -50,5 +50,11 @@ public final class ColmapImageOpenCV {
 		return "ColmapImageOpenCV2 [colmapImage=" + colmapImage.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
 				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +colmapImage.observations().size()+ "]";
 	}
+
+	public List<ColmapImageObservationOpenCV> getObservationFeaturesOpenCv() {
+		return observationFeaturesOpenCv;
+	}
+	
+	
     
 }

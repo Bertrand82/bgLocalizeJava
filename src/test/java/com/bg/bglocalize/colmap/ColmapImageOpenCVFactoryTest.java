@@ -89,6 +89,7 @@ class ColmapImageOpenCVFactoryTest {
         }
     }
 
+    
     @Test
     void shouldRejectObservationOutsideImageBounds() {
         ColmapImage2D invalidImage = new ColmapImage2D(
@@ -129,4 +130,6 @@ class ColmapImageOpenCVFactoryTest {
                 image.name(),
                 image.observations().subList(0, observationCount));
     }
+    
+    
 }

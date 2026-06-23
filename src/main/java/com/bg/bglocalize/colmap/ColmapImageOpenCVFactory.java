@@ -47,8 +47,11 @@ public final class ColmapImageOpenCVFactory implements Closeable {
         OpenCvInitializer.initialize();
     }
 
+    public ColmapImageOpenCV create(ColmapImage2D colmapImage) throws SQLException {
+    	return create(colmapImage, FeatureAlgorithm.SIFT);
+    }
     public ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm) throws SQLException {
-        Objects.requireNonNull(colmapImage, "colmapImage must not be null");
+    		        Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         Objects.requireNonNull(algorithm, "algorithm must not be null");
         return create(colmapImage, algorithm, algorithm.createExtractor());
     }
@@ -59,8 +62,9 @@ public final class ColmapImageOpenCVFactory implements Closeable {
 
         for (ColmapImage2D colmapImage : colmapImages) {
         	long timeStart = System.currentTimeMillis();
-        	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+"  observations.size :"+colmapImage.observations().size());
+        	
         	ColmapImageOpenCV cio = create(colmapImage, algorithm, extractor);
+        	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+" colmap. observations.size :"+colmapImage.observations().size()+" opencv.observtions.size :  "+cio.getObservationFeatures().size());
         	System.out.println(" done  :"+getDeltaTime(timeStart)+"  "+cio);
             results.add(cio);
         }
@@ -171,8 +175,10 @@ public final class ColmapImageOpenCVFactory implements Closeable {
             throw new IllegalArgumentException("Observation coordinates must be non-negative: " + observation);
         }
         if (observation.x() >= image.getWidth() || observation.y() >= image.getHeight()) {
+        	double dx = observation.x() - image.getWidth();
+        	double dy = observation.y() - image.getHeight();
             throw new IllegalArgumentException(
-                    "Observation is outside image bounds: " + observation + ", image=" + image.getImagePath());
+                    "Observation is outside image bounds: " + observation + "  dx "+dx+"  dy "+dy+ ", image=" + image.getImagePath());
         }
     }
 }
