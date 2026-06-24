@@ -37,6 +37,7 @@ public final class FeatureMatchResult {
 		return target;
 	}
 
+<<<<<<< HEAD
 	public List<DMatch> getMatches() {
 		return matches;
 	}
@@ -50,4 +51,16 @@ public final class FeatureMatchResult {
 		return "FeatureMatchResult [query=" + query.getImageId() + ", target=" + target.getImageName() + ", matchCount="
 				+ matches.size()+"  distanceMoyenne="+distanceMoyenne +" ecartType="+distanceEcartType+ "]";
 	}
+=======
+    public boolean isMatch() {
+        return !matches.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "FeatureMatchResult [query=" + query.getImageId()
+                + ", target=" + target.getImageName()
+                + ", matchCount=" + matches.size() + "]";
+    }
+>>>>>>> 6fb847262f449732da635f3fe646d9bbe634ed17
 }
