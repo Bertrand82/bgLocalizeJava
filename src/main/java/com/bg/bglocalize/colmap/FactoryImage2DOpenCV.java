@@ -58,6 +58,7 @@ public final class FactoryImage2DOpenCV {
         KeyPoint[] keyPoints = extraction.getKeypoints().toArray();
         List<ColmapImageObservationOpenCV> observations = new ArrayList<>(keyPoints.length);
         Mat descriptors = extraction.getDescriptors();
+        boolean hasDescriptors = !descriptors.empty();
 
         for (int i = 0; i < keyPoints.length; i++) {
             KeyPoint keyPoint = keyPoints[i];
@@ -65,7 +66,7 @@ public final class FactoryImage2DOpenCV {
                     keyPoint.pt.x,
                     keyPoint.pt.y,
                     UNASSIGNED_POINT_3D_ID);
-            Mat descriptor = descriptors.empty() ? new Mat() : descriptors.row(i).clone();
+            Mat descriptor = hasDescriptors ? descriptors.row(i).clone() : new Mat();
             observations.add(new ColmapImageObservationOpenCV(observation, keyPoint, descriptor));
         }
         return observations;

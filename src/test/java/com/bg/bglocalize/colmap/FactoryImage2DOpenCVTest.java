@@ -22,11 +22,10 @@ class FactoryImage2DOpenCVTest {
 
     @AfterEach
     void tearDown() {
-        if (createdImage == null) {
-            return;
-        }
-        for (ColmapImageObservationOpenCV observation : createdImage.getObservationFeatures()) {
-            observation.getDescriptor().release();
+        if (createdImage != null) {
+            for (ColmapImageObservationOpenCV observation : createdImage.getObservationFeatures()) {
+                observation.getDescriptor().release();
+            }
         }
     }
 
