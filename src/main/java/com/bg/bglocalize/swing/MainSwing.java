@@ -111,36 +111,9 @@ public class MainSwing {
     private record LoadResult(Image2DOpenCV image2DOpenCV, BufferedImage bufferedImage) {}
 
     public static void main(String[] args) {
-        SwingWorker<Void, Void> initWorker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                OpenCvInitializer.initialize();
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    get();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.error("OpenCV initialization interrupted", e);
-                    JOptionPane.showMessageDialog(null,
-                            "L'initialisation d'OpenCV a été interrompue.",
-                            "Erreur d'initialisation",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                } catch (ExecutionException e) {
-                    logger.error("OpenCV initialization failed", e.getCause());
-                    JOptionPane.showMessageDialog(null,
-                            "Impossible d'initialiser OpenCV :\n" + e.getCause().getMessage(),
-                            "Erreur d'initialisation",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                SwingUtilities.invokeLater(() -> new MainSwing().show());
-            }
-        };
-        initWorker.execute();
+    	OpenCvInitializer.initialize();
+    	System.out.println("MainSwing start");
+       
+    	 new MainSwing().show();
     }
 }
