@@ -30,8 +30,6 @@ public final class ImageMatchService {
      * @return the match result containing all raw descriptor matches
      */
     public FeatureMatchResult match(FeatureExtractionResult query, ColmapImage2DOpenCV target) {
-        Objects.requireNonNull(query, "query must not be null");
-        Objects.requireNonNull(target, "target must not be null");
         if (!query.getAlgorithm().equals(target.getAlgorithm())) {
             throw new IllegalArgumentException(
                     "Algorithm mismatch: query uses " + query.getAlgorithm()

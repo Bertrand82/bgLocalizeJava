@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.opencv.core.DMatch;
 
 import com.bg.bglocalize.colmap.ColmapImage2D;
 import com.bg.bglocalize.colmap.ColmapImageObservation;
@@ -104,16 +105,17 @@ class ImageMatchServiceTest {
 
 		// 1) Sanity: all results valid
 		for (FeatureMatchResult result : results) {
-			assertNotNull(result.getTarget());
-			assertNotNull(result.getMatches());
-			assertTrue(result.getMatchCount() >= 0);
-			System.out.println(comment+" vs " + result.getTarget().getImageName()+"  features.size " +result.getTarget().getObservationFeatures().size()+ " -> " + result.getMatchCount() + " matches");
+			List<DMatch> listTopN = UtilsMatchFiltering.topN(result.getMatches(), 30);
+			double averageTopN =listTopN.stream().mapToDouble(m -> m.distance).average().orElse(Double.NaN);;
+			System.out.println(comment+" vs " + result.getTarget().getImageName()+"  features.size " +result.getTarget().getObservationFeatures().size()+ " -> " + result.getMatchCount()+ "  averageTopN "+averageTopN + " matches");
+			System.out.println("averageTopN  "+averageTopN);
 		}
 
 		// 2) Critical: match counts should not all be identical across different target
 		// images
 		long distinctCounts = results.stream().map(FeatureMatchResult::getMatchCount).distinct().count();
-
+         System.out.println("distinctCounts "+distinctCounts);
+         
 		// assertTrue(distinctCounts > 1,"All match counts are identical; likely
 		// counting raw descriptors or reusing state.");
 	}

@@ -249,9 +249,9 @@ Je veux  pouvoir extraire les features opencv de n colmapImage à partir des poi
 A partir d'une instance de ColmapImage, je veux pouvoir crer une instance de ColmapImageOpenCV qui comprendra comme variable: une ColmapImage, le nom de l'image (recuperer via ColmapDatabaseReader), les fetaures opencv correspondant à chaque ColmapImageObservation;
 ColmapImageOpenCVFactory fournira ce service.
 
-## Match entre 1 image et n ColmapImageOpenCV
+## Match entre 1 image et n ColmapImage2DOpenCV
 Je voudrai un service qui utilise openCv pour tester le match entre une image et n ColmapImageOpenCV
-En test , utiliser les 2 images (./data/BG.jpg et ./data/BG_1.jpg) , Apres avoir recuperé FeatureExtractionResult de ces images, seront testés contre l'ensemble des images recupérés dans ./data/BG/sparse/0/images2DColmapOpenCV.txt  .
+En test , utiliser les 2 images (./data/BG.jpg et ./data/BG_1.jpg) , Apres avoir recuperé FeatureExtractionResult de ces images, seront testés contre l'ensemble des images List<ColmapImage2DOpenCV> recupérés dans ./data/BG/sparse/0/images2DColmapOpenCV.txt  .
 
 
 

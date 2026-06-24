@@ -103,13 +103,13 @@ class ImageMatchServiceFromTextTest {
 
         assertEquals(targets.size(), results.size());
 
-        for (FeatureMatchResult result : results) {
-            assertNotNull(result.getTarget());
-            assertNotNull(result.getMatches());
-            assertTrue(result.getMatchCount() >= 0);
-            System.out.println(label + " vs " + result.getTarget().getImageName()
-                    + "  features.size " + result.getTarget().getObservationFeatures().size()
-                    + " -> " + result.getMatchCount() + " matches");
+        for (FeatureMatchResult matchResult : results) {
+            assertNotNull(matchResult.getTarget());
+            assertNotNull(matchResult.getMatches());
+            assertTrue(matchResult.getMatchCount() >= 0);
+            System.out.println(label + " vs " + matchResult.getTarget().getImageName()
+                    + "  features.size " + matchResult.getTarget().getObservationFeatures().size()
+                    + " -> " + matchResult.getMatchCount() + " matches "+matchResult);
         }
     }
 }
