@@ -22,7 +22,7 @@ public final class Image2DColmapOpenCV {
             List<ColmapImageObservationOpenCV> observationFeatures) {
         this.imageColmap = Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         this.imageName = Objects.requireNonNull(imageName, "imageName must not be null");
-        this.imageOpenCV= new Image2DOpenCV(imageName, algorithm, observationFeatures);
+        this.imageOpenCV = new Image2DOpenCV(imageName, algorithm, observationFeatures);
     }
 
     public Image2DColmap getImageColmap() {
