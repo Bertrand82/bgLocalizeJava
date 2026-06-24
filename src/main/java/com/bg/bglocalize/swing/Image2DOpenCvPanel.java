@@ -9,11 +9,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.slf4j.Logger;
@@ -35,14 +32,13 @@ public class Image2DOpenCvPanel extends JPanel {
         setPreferredSize(new Dimension(640, 480));
     }
 
-    public void setImage2DOpenCV(Image2DOpenCV image2DOpenCV, File imageFile) {
+    /**
+     * Updates the panel with a pre-loaded image and its OpenCV features.
+     * Must be called on the EDT.
+     */
+    public void setImage2DOpenCV(Image2DOpenCV image2DOpenCV, BufferedImage bufferedImage) {
         this.image2DOpenCV = image2DOpenCV;
-        try {
-            this.bufferedImage = ImageIO.read(imageFile);
-        } catch (IOException e) {
-            logger.error("Failed to load image for display: {}", imageFile, e);
-            this.bufferedImage = null;
-        }
+        this.bufferedImage = bufferedImage;
         repaint();
     }
 

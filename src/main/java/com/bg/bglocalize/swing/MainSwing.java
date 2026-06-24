@@ -1,7 +1,11 @@
 package com.bg.bglocalize.swing;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -10,6 +14,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.slf4j.Logger;
@@ -73,22 +78,51 @@ public class MainSwing {
         }
 
         File selectedFile = fileChooser.getSelectedFile();
-        try {
-            Image2DOpenCV image2DOpenCV = factory.create(selectedFile);
-            targetPanel.setImage2DOpenCV(image2DOpenCV, selectedFile);
-            logger.info("Loaded image: {} with {} features",
-                    selectedFile.getName(), image2DOpenCV.getObservationFeatures().size());
-        } catch (Exception e) {
-            logger.error("Failed to load image: {}", selectedFile, e);
-            JOptionPane.showMessageDialog(frame,
-                    "Impossible de charger l'image :\n" + e.getMessage(),
-                    "Erreur de chargement",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+
+        new SwingWorker<LoadResult, Void>() {
+            @Override
+            protected LoadResult doInBackground() throws Exception {
+                Image2DOpenCV image2DOpenCV = factory.create(selectedFile);
+                BufferedImage bufferedImage = ImageIO.read(selectedFile);
+                return new LoadResult(image2DOpenCV, bufferedImage);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    LoadResult result = get();
+                    targetPanel.setImage2DOpenCV(result.image2DOpenCV(), result.bufferedImage());
+                    logger.info("Loaded image: {} with {} features",
+                            selectedFile.getName(), result.image2DOpenCV().getObservationFeatures().size());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.error("Image loading interrupted: {}", selectedFile, e);
+                } catch (ExecutionException e) {
+                    logger.error("Failed to load image: {}", selectedFile, e.getCause());
+                    JOptionPane.showMessageDialog(frame,
+                            "Impossible de charger l'image :\n" + e.getCause().getMessage(),
+                            "Erreur de chargement",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
     }
 
+    private record LoadResult(Image2DOpenCV image2DOpenCV, BufferedImage bufferedImage) {}
+
     public static void main(String[] args) {
-        OpenCvInitializer.initialize();
-        SwingUtilities.invokeLater(() -> new MainSwing().show());
+        SwingWorker<Void, Void> initWorker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                OpenCvInitializer.initialize();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                SwingUtilities.invokeLater(() -> new MainSwing().show());
+            }
+        };
+        initWorker.execute();
     }
 }
