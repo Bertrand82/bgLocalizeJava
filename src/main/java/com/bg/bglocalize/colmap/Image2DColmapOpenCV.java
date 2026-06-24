@@ -57,7 +57,7 @@ public final class Image2DColmapOpenCV {
         }
         return Objects.equals(imageColmap, other.imageColmap)
                 && Objects.equals(imageName, other.imageName)
-                && getAlgorithm() == other.getAlgorithm()
+                && Objects.equals(getAlgorithm(), other.getAlgorithm())
                 && observationFeaturesEquals(getObservationFeatures(), other.getObservationFeatures());
     }
 
