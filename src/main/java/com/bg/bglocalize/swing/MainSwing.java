@@ -1,17 +1,21 @@
 package com.bg.bglocalize.swing;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -41,7 +45,20 @@ public class MainSwing {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerLocation(0.5);
-        frame.getContentPane().add(splitPane);
+
+        JCheckBox showObservationsCheckBox = new JCheckBox("Afficher les observations", true);
+        showObservationsCheckBox.addActionListener(e -> {
+            boolean selected = showObservationsCheckBox.isSelected();
+            panel1.setShowObservations(selected);
+            panel2.setShowObservations(selected);
+        });
+
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        controlPanel.add(showObservationsCheckBox);
+
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(controlPanel, BorderLayout.NORTH);
+        frame.getContentPane().add(splitPane, BorderLayout.CENTER);
 
         frame.setJMenuBar(buildMenuBar());
 
