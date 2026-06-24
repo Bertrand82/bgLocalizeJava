@@ -26,12 +26,18 @@ public class Image2DOpenCvPanel extends JPanel {
 
     private Image2DOpenCV image2DOpenCV;
     private BufferedImage bufferedImage;
+    private boolean showObservations = true;
 
     private static final Color FEATURE_OVERLAY_COLOR = new Color(0, 220, 0, 200);
 
     public Image2DOpenCvPanel() {
         setBackground(Color.DARK_GRAY);
         setPreferredSize(new Dimension(640, 480));
+    }
+
+    public void setShowObservations(boolean showObservations) {
+        this.showObservations = showObservations;
+        repaint();
     }
 
     /**
@@ -68,7 +74,9 @@ public class Image2DOpenCvPanel extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2d.drawImage(bufferedImage, offsetX, offsetY, scaledW, scaledH, null);
 
-        drawFeatures(g2d, scale, offsetX, offsetY);
+        if (showObservations) {
+            drawFeatures(g2d, scale, offsetX, offsetY);
+        }
     }
 
     private void drawPlaceholder(Graphics g) {
