@@ -17,9 +17,9 @@ import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 class ColmapImageOpenCVTest {
 
-    private ColmapImage2DOpenCV left;
-    private ColmapImage2DOpenCV right;
-    private ColmapImage2DOpenCV different;
+    private Image2DColmapOpenCV left;
+    private Image2DColmapOpenCV right;
+    private Image2DColmapOpenCV different;
 
     @BeforeAll
     static void initializeOpenCv() {
@@ -36,10 +36,10 @@ class ColmapImageOpenCVTest {
     @Test
     void shouldCompareImagesUsingLogicalContent() {
         ColmapImageObservation observation = new ColmapImageObservation(174.312, 7.635, 12L);
-        ColmapImage2D colmapImage = new ColmapImage2D(1L, 0.965, 0.039, 0.258, -0.004,
+        Image2DColmap colmapImage = new Image2DColmap(1L, 0.965, 0.039, 0.258, -0.004,
                 2.712, -0.871, 2.945, 1L, "IMG_20260618_124549.jpg", List.of(observation));
 
-        left = new ColmapImage2DOpenCV(
+        left = new Image2DColmapOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -47,7 +47,7 @@ class ColmapImageOpenCVTest {
                         observation,
                         new KeyPoint(174.3125f, 7.635f, 31.0f, 45.0f, 0.5f, 1, 0),
                         buildFloatDescriptor(4, 0.0f))));
-        right = new ColmapImage2DOpenCV(
+        right = new Image2DColmapOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -55,7 +55,7 @@ class ColmapImageOpenCVTest {
                         observation,
                         new KeyPoint(174.3125f, 7.635f, 31.0f, 45.0f, 0.5f, 1, 0),
                         buildFloatDescriptor(4, 0.0f))));
-        different = new ColmapImage2DOpenCV(
+        different = new Image2DColmapOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -81,7 +81,7 @@ class ColmapImageOpenCVTest {
         return descriptor;
     }
 
-    private static void release(ColmapImage2DOpenCV image) {
+    private static void release(Image2DColmapOpenCV image) {
         if (image != null) {
             image.releaseDescriptors();
         }

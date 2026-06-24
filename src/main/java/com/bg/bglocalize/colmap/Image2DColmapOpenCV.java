@@ -8,26 +8,31 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
-public final class ColmapImage2DOpenCV {  
+public final class Image2DColmapOpenCV {  
 
-    private final ColmapImage2D colmapImage;
+    private final Image2DColmap imageColmap;
+    private final Image2DOpenCV imageOpenCV;
+   
     private final String imageName;
+    @Deprecated
     private final FeatureAlgorithm algorithm;
+    @Deprecated
     private final List<ColmapImageObservationOpenCV> observationFeaturesOpenCv;
 
-    public ColmapImage2DOpenCV(
-            ColmapImage2D colmapImage,
+    public Image2DColmapOpenCV(
+            Image2DColmap colmapImage,
             String imageName,
             FeatureAlgorithm algorithm,
             List<ColmapImageObservationOpenCV> observationFeatures) {
-        this.colmapImage = Objects.requireNonNull(colmapImage, "colmapImage must not be null");
+        this.imageColmap = Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         this.imageName = Objects.requireNonNull(imageName, "imageName must not be null");
         this.algorithm = Objects.requireNonNull(algorithm, "algorithm must not be null");
         this.observationFeaturesOpenCv = observationFeatures;
+        this.imageOpenCV= new Image2DOpenCV(imageName, algorithm, observationFeatures);
     }
 
-    public ColmapImage2D getColmapImage() {
-        return colmapImage;
+    public Image2DColmap getImageColmap() {
+        return imageColmap;
     }
 
     public String getImageName() {
@@ -53,21 +58,20 @@ public final class ColmapImage2DOpenCV {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ColmapImage2DOpenCV other)) {
+        if (!(obj instanceof Image2DColmapOpenCV other)) {
             return false;
         }
-        return Objects.equals(colmapImage, other.colmapImage)
+        return Objects.equals(imageColmap, other.imageColmap)
                 && Objects.equals(imageName, other.imageName)
-                && algorithm == other.algorithm
-                && observationFeaturesEquals(observationFeaturesOpenCv, other.observationFeaturesOpenCv);
+                && Objects.equals(imageOpenCV, other.imageOpenCV);
     }
 
 
 
 	@Override
 	public String toString() {
-		return "ColmapImageOpenCV [colmapImage=" + colmapImage.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
-				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +colmapImage.observations().size()+ "]";
+		return "ColmapImageOpenCV [colmapImage=" + imageColmap.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
+				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +imageColmap.observations().size()+ "]";
 	}
 
 	public List<ColmapImageObservationOpenCV> getObservationFeaturesOpenCv() {
@@ -77,7 +81,7 @@ public final class ColmapImage2DOpenCV {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(algorithm, colmapImage, imageName, observationFeaturesOpenCv);
+		return Objects.hash(algorithm, imageColmap, imageName, observationFeaturesOpenCv);
 	}
 
 	

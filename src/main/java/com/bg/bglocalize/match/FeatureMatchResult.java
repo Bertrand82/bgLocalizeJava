@@ -5,19 +5,19 @@ import java.util.Objects;
 
 import org.opencv.core.DMatch;
 
-import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
+import com.bg.bglocalize.colmap.Image2DColmapOpenCV;
 import com.bg.bglocalize.features.FeatureExtractionResult;
 
 public final class FeatureMatchResult {
 
 	private final FeatureExtractionResult query;
-	private final ColmapImage2DOpenCV target;
+	private final Image2DColmapOpenCV target;
 	private final List<DMatch> matches;
 	float DISTANCE_MIN = 60.001f;
 	double distanceMoyenne;
 	double distanceEcartType;
 
-	public FeatureMatchResult(FeatureExtractionResult query, ColmapImage2DOpenCV target, List<DMatch> matches) {
+	public FeatureMatchResult(FeatureExtractionResult query, Image2DColmapOpenCV target, List<DMatch> matches) {
 		this.query = Objects.requireNonNull(query, "query must not be null");
 		this.target = Objects.requireNonNull(target, "target must not be null");
 		distanceMoyenne = matches.stream().mapToDouble(m -> m.distance).average().orElse(Double.NaN);
@@ -33,11 +33,10 @@ public final class FeatureMatchResult {
 		return query;
 	}
 
-	public ColmapImage2DOpenCV getTarget() {
+	public Image2DColmapOpenCV getTarget() {
 		return target;
 	}
 
-<<<<<<< HEAD
 	public List<DMatch> getMatches() {
 		return matches;
 	}
@@ -51,16 +50,7 @@ public final class FeatureMatchResult {
 		return "FeatureMatchResult [query=" + query.getImageId() + ", target=" + target.getImageName() + ", matchCount="
 				+ matches.size()+"  distanceMoyenne="+distanceMoyenne +" ecartType="+distanceEcartType+ "]";
 	}
-=======
-    public boolean isMatch() {
-        return !matches.isEmpty();
-    }
 
-    @Override
-    public String toString() {
-        return "FeatureMatchResult [query=" + query.getImageId()
-                + ", target=" + target.getImageName()
-                + ", matchCount=" + matches.size() + "]";
-    }
->>>>>>> 6fb847262f449732da635f3fe646d9bbe634ed17
+
+
 }

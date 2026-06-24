@@ -3,7 +3,7 @@ package com.bg.bglocalize.colmap;
 import java.util.List;
 import java.util.Objects;
 
-public record ColmapImage2D(
+public record Image2DColmap(
         long imageId,
         double qw,
         double qx,
@@ -16,7 +16,7 @@ public record ColmapImage2D(
         String name,
         List<ColmapImageObservation> observations) {
 
-    public ColmapImage2D {
+    public Image2DColmap {
     	observations = observations.stream()
 				.filter(o -> o.point3DId() != -1)
     		    .toList();
@@ -31,7 +31,7 @@ public record ColmapImage2D(
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ColmapImage2D other = (ColmapImage2D) obj;
+		Image2DColmap other = (Image2DColmap) obj;
 		return cameraId == other.cameraId && imageId == other.imageId && Objects.equals(name, other.name)
 				&& Objects.equals(observations, other.observations)
 				&& Double.doubleToLongBits(qw) == Double.doubleToLongBits(other.qw)

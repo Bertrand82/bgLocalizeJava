@@ -19,11 +19,11 @@ class ColmapTextModelReaderTest {
 
     @Test
     void shouldReadImagesFile() throws IOException {
-        List<ColmapImage2D> images = reader.readImages2D(IMAGES_PATH);
+        List<Image2DColmap> images = reader.readImages2D(IMAGES_PATH);
 
         assertEquals(6, images.size());
 
-        ColmapImage2D firstImage = images.get(0);
+        Image2DColmap firstImage = images.get(0);
         assertEquals(1L, firstImage.imageId());
         assertEquals("IMG_20260618_124549.jpg", firstImage.name());
         assertEquals(1L, firstImage.cameraId());
@@ -31,7 +31,7 @@ class ColmapTextModelReaderTest {
         assertEquals(new ColmapImageObservation(3141.588623046875, 1104.3594970703125, 1157L),
                 firstImage.observations().get(0));
 
-        ColmapImage2D lastImage = images.get(images.size() - 1);
+        Image2DColmap lastImage = images.get(images.size() - 1);
         assertEquals(10L, lastImage.imageId());
         assertEquals("IMG_20260618_124823.jpg", lastImage.name());
         assertEquals(778, lastImage.observations().size());

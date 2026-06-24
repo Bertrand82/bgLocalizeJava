@@ -16,9 +16,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opencv.core.DMatch;
 
-import com.bg.bglocalize.colmap.ColmapImage2D;
+import com.bg.bglocalize.colmap.Image2DColmap;
 import com.bg.bglocalize.colmap.ColmapImageObservation;
-import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
+import com.bg.bglocalize.colmap.Image2DColmapOpenCV;
 import com.bg.bglocalize.colmap.ColmapImageOpenCVFactory;
 import com.bg.bglocalize.colmap.ColmapTextModelReader;
 import com.bg.bglocalize.features.FeatureAlgorithm;
@@ -31,12 +31,12 @@ class ImageMatchServiceTest {
 	private static final File DATABASE_FILE = new File("data/BG/database.db");
 	private static final File IMAGES_DIRECTORY = new File("data/BG/images");
 	private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
-	private static final File QUERY_IMAGE_1 = new File("data/BG.jpg");
-	private static final File QUERY_IMAGE_2 = new File("data/BG_1.jpg");
+	private static final File QUERY_IMAGE_1 = new File("data/BG_1.jpg");
+	private static final File QUERY_IMAGE_2 = new File("data/BG_2.jpg");
 
 	private static final FeatureAlgorithm ALGORITHM = FeatureAlgorithm.SIFT;
 
-	private static List<ColmapImage2DOpenCV> colmapImages;
+	private static List<Image2DColmapOpenCV> colmapImages;
 	private static FeatureExtractionResult queryResult1;
 	private static FeatureExtractionResult queryResult2;
 	private static ColmapImageOpenCVFactory factory;
@@ -54,7 +54,7 @@ class ImageMatchServiceTest {
 		queryResult2 = extractor.extract(QUERY_IMAGE_2.getPath(), ALGORITHM);
 		System.out.println("Lecture images2D colmap start");
 		ColmapTextModelReader reader = new ColmapTextModelReader();
-		List<ColmapImage2D> images = reader.readImages2D(IMAGES_TXT.toPath());
+		List<Image2DColmap> images = reader.readImages2D(IMAGES_TXT.toPath());
 		System.out.println("Lecture images2D colmap done images.size "+images.size());
 		System.out.println("Lecture images2D colmap  openCV");
 		factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
@@ -96,7 +96,7 @@ class ImageMatchServiceTest {
 		shouldMatchQueryImageAgainstAllColmapImages(queryResult2,"BG_2",colmapImages);
 	}
 
-	void shouldMatchQueryImageAgainstAllColmapImages(FeatureExtractionResult queryResult1, String comment, List<ColmapImage2DOpenCV> colmapImages ) {
+	void shouldMatchQueryImageAgainstAllColmapImages(FeatureExtractionResult queryResult1, String comment, List<Image2DColmapOpenCV> colmapImages ) {
 		ImageMatchService service = new ImageMatchService();
 
 		List<FeatureMatchResult> results = service.matchAll(queryResult1, colmapImages);
@@ -124,7 +124,7 @@ class ImageMatchServiceTest {
 	@Test
 	void shouldMatchSingleQueryAgainstFirstColmapImage() {
 		ImageMatchService service = new ImageMatchService();
-		ColmapImage2DOpenCV firstTarget = colmapImages.get(0);
+		Image2DColmapOpenCV firstTarget = colmapImages.get(0);
 
 		FeatureMatchResult result = service.match(queryResult1, firstTarget);
 
@@ -140,7 +140,7 @@ class ImageMatchServiceTest {
 		OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
 		FeatureExtractionResult orbResult = extractor.extract(QUERY_IMAGE_1.getPath(), FeatureAlgorithm.ORB);
 		ImageMatchService service = new ImageMatchService();
-		ColmapImage2DOpenCV siftTarget = colmapImages.get(0);
+		Image2DColmapOpenCV siftTarget = colmapImages.get(0);
 
 		try {
 			assertThrows(IllegalArgumentException.class, () -> service.match(orbResult, siftTarget));
@@ -150,9 +150,9 @@ class ImageMatchServiceTest {
 		}
 	}
 
-	private static ColmapImage2D limitObservations(ColmapImage2D image, int maxObservations) {
+	private static Image2DColmap limitObservations(Image2DColmap image, int maxObservations) {
 		List<ColmapImageObservation> limited = image.observations().stream().limit(maxObservations).toList();
-		return new ColmapImage2D(image.imageId(), image.qw(), image.qx(), image.qy(), image.qz(), image.tx(), image.ty(),
+		return new Image2DColmap(image.imageId(), image.qw(), image.qx(), image.qy(), image.qz(), image.tx(), image.ty(),
 				image.tz(), image.cameraId(), image.name(), limited);
 	}
 }

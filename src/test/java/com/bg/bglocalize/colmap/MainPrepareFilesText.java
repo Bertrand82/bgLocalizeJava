@@ -51,11 +51,11 @@ public class MainPrepareFilesText {
     public void processTrace() throws Exception{
     	long timeStart = System.currentTimeMillis();
     	System.out.println("Read2D start");
-        List<ColmapImage2D> images = reader.readImages2D(image2D_Txt.toPath());
+        List<Image2DColmap> images = reader.readImages2D(image2D_Txt.toPath());
         System.out.println("Read2D done "+getDuree(timeStart)+"   images.size : "+images.size());
         
         System.out.println("Process2DOpenCv start ");
-        List<ColmapImage2DOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
+        List<Image2DColmapOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
         System.out.println("rocess2DOpenCv  done "+getDuree(timeStart));
         System.out.println("Generated: " + listColmapImageOpenCV.size()  +" / ");
         
@@ -64,7 +64,7 @@ public class MainPrepareFilesText {
         File tempFile = new File(dirOut,"images2DColmapOpenCV.txt");
         factoryText.write(listColmapImageOpenCV, tempFile.toPath());
         System.out.println(" factoryText.write  done "+getDuree(timeStart)+"  "+tempFile.toPath());
-        List<ColmapImage2DOpenCV>  listRead = factoryText.read(tempFile.toPath());
+        List<Image2DColmapOpenCV>  listRead = factoryText.read(tempFile.toPath());
         System.out.println(" factoryText.read  done "+getDuree(timeStart)+"  "+tempFile.toPath());
         System.out.println("equals "+listRead.equals(listColmapImageOpenCV));
     }

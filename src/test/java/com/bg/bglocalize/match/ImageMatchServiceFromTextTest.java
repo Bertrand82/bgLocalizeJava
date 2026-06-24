@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
+import com.bg.bglocalize.colmap.Image2DColmapOpenCV;
 import com.bg.bglocalize.colmap.ColmapImageOpenCvFactoryText;
 import com.bg.bglocalize.features.FeatureAlgorithm;
 import com.bg.bglocalize.features.FeatureExtractionResult;
@@ -30,7 +30,7 @@ class ImageMatchServiceFromTextTest {
 
     private static final FeatureAlgorithm ALGORITHM = FeatureAlgorithm.SIFT;
 
-    private static List<ColmapImage2DOpenCV> colmapImages;
+    private static List<Image2DColmapOpenCV> colmapImages;
     private static FeatureExtractionResult queryResult1;
     private static FeatureExtractionResult queryResult2;
 
@@ -61,7 +61,7 @@ class ImageMatchServiceFromTextTest {
             queryResult2.getDescriptors().release();
         }
         if (colmapImages != null) {
-            colmapImages.forEach(ColmapImage2DOpenCV::releaseDescriptors);
+            colmapImages.forEach(Image2DColmapOpenCV::releaseDescriptors);
         }
     }
 
@@ -79,7 +79,7 @@ class ImageMatchServiceFromTextTest {
     @Test
     void shouldLoadColmapImagesFromTextFile() {
         assertFalse(colmapImages.isEmpty());
-        for (ColmapImage2DOpenCV image : colmapImages) {
+        for (Image2DColmapOpenCV image : colmapImages) {
             assertNotNull(image.getImageName());
             assertEquals(ALGORITHM, image.getAlgorithm());
         }
@@ -96,7 +96,7 @@ class ImageMatchServiceFromTextTest {
     }
 
     private static void matchAndPrint(FeatureExtractionResult query, String label,
-            List<ColmapImage2DOpenCV> targets) {
+            List<Image2DColmapOpenCV> targets) {
         ImageMatchService service = new ImageMatchService();
 
         List<FeatureMatchResult> results = service.matchAll(query, targets);

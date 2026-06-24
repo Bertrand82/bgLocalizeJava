@@ -45,12 +45,12 @@ class ColmapImageOpenCVFactoryTest {
 
     @Test
     void shouldCreateOpenCvFeaturesForOneColmapImage() throws IOException, SQLException {
-        ColmapImage2D colmapImage = firstImageWithLimitedObservations(8);
+        Image2DColmap colmapImage = firstImageWithLimitedObservations(8);
 
-        ColmapImage2DOpenCV result = factory.create(colmapImage, FeatureAlgorithm.SIFT);
+        Image2DColmapOpenCV result = factory.create(colmapImage, FeatureAlgorithm.SIFT);
 
         try {
-            assertEquals(colmapImage, result.getColmapImage());
+            assertEquals(colmapImage, result.getImageColmap());
             assertEquals("IMG_20260618_124549.jpg", result.getImageName());
             assertEquals(FeatureAlgorithm.SIFT, result.getAlgorithm());
             assertEquals(colmapImage.observations().size(), result.getObservationFeatures().size());
@@ -68,31 +68,31 @@ class ColmapImageOpenCVFactoryTest {
 
     @Test
     void shouldCreateOpenCvFeaturesForManyColmapImages() throws IOException, SQLException {
-        List<ColmapImage2D> images = reader.readImages2D(IMAGES_FILE.toPath()).stream()
+        List<Image2DColmap> images = reader.readImages2D(IMAGES_FILE.toPath()).stream()
                 .limit(2)
                 .map(image -> copyWithLimitedObservations(image, 5))
                 .toList();
 
-        List<ColmapImage2DOpenCV> results = factory.createAll(images, FeatureAlgorithm.SIFT);
+        List<Image2DColmapOpenCV> results = factory.createAll(images, FeatureAlgorithm.SIFT);
 
         try {
             assertEquals(2, results.size());
-            assertEquals(images.get(0).imageId(), results.get(0).getColmapImage().imageId());
-            assertEquals(images.get(1).imageId(), results.get(1).getColmapImage().imageId());
+            assertEquals(images.get(0).imageId(), results.get(0).getImageColmap().imageId());
+            assertEquals(images.get(1).imageId(), results.get(1).getImageColmap().imageId());
             assertEquals(images.get(0).observations().size(), results.get(0).getObservationFeatures().size());
             assertEquals(images.get(1).observations().size(), results.get(1).getObservationFeatures().size());
             assertTrue(results.stream()
                     .flatMap(result -> result.getObservationFeatures().stream())
                     .allMatch(ColmapImageObservationOpenCV::hasDescriptor));
         } finally {
-            results.forEach(ColmapImage2DOpenCV::releaseDescriptors);
+            results.forEach(Image2DColmapOpenCV::releaseDescriptors);
         }
     }
 
     
     @Test
     void shouldRejectObservationOutsideImageBounds() {
-        ColmapImage2D invalidImage = new ColmapImage2D(
+        Image2DColmap invalidImage = new Image2DColmap(
                 1L,
                 1.0,
                 0.0,
@@ -111,13 +111,13 @@ class ColmapImageOpenCVFactoryTest {
         assertTrue(exception.getMessage().contains("outside image bounds"));
     }
 
-    private ColmapImage2D firstImageWithLimitedObservations(int observationCount) throws IOException {
-        ColmapImage2D firstImage = reader.readImages2D(IMAGES_FILE.toPath()).get(0);
+    private Image2DColmap firstImageWithLimitedObservations(int observationCount) throws IOException {
+        Image2DColmap firstImage = reader.readImages2D(IMAGES_FILE.toPath()).get(0);
         return copyWithLimitedObservations(firstImage, observationCount);
     }
 
-    private static ColmapImage2D copyWithLimitedObservations(ColmapImage2D image, int observationCount) {
-        return new ColmapImage2D(
+    private static Image2DColmap copyWithLimitedObservations(Image2DColmap image, int observationCount) {
+        return new Image2DColmap(
                 image.imageId(),
                 image.qw(),
                 image.qx(),
