@@ -36,6 +36,10 @@ public final class FeatureMatchResult {
         return matches.size();
     }
 
+    public boolean isMatch() {
+        return !matches.isEmpty();
+    }
+
     @Override
     public String toString() {
         return "FeatureMatchResult [query=" + query.getImageId()
