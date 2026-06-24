@@ -29,7 +29,7 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
  *   ...  (one line per observation)
  * </pre>
  */
-public final class ColmapImageOpenCvFactoryText {
+public final class FactoryImage2DColmapOpen_Text {
 
     /** Number of whitespace-separated fields on an image header line. */
     private static final int IMAGE_HEADER_FIELD_COUNT = 10;
@@ -51,7 +51,7 @@ public final class ColmapImageOpenCvFactoryText {
 
         List<Image2DColmapOpenCV> colmapImagesOpenCV;
         System.out.println("Lecture images2D colmap  conversion openCv start");
-        try (ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory)) {
+        try (FactoryImage2DColmapOpenCV factory = new FactoryImage2DColmapOpenCV(databaseFile, imagesDirectory)) {
             colmapImagesOpenCV = factory.createAll(images, algorithm);
         }
         write(colmapImagesOpenCV, outputPath);

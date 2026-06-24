@@ -19,7 +19,7 @@ import org.opencv.core.DMatch;
 import com.bg.bglocalize.colmap.Image2DColmap;
 import com.bg.bglocalize.colmap.ColmapImageObservation;
 import com.bg.bglocalize.colmap.Image2DColmapOpenCV;
-import com.bg.bglocalize.colmap.ColmapImageOpenCVFactory;
+import com.bg.bglocalize.colmap.FactoryImage2DColmapOpenCV;
 import com.bg.bglocalize.colmap.ColmapTextModelReader;
 import com.bg.bglocalize.features.FeatureAlgorithm;
 import com.bg.bglocalize.features.FeatureExtractionResult;
@@ -39,7 +39,7 @@ class ImageMatchServiceTest {
 	private static List<Image2DColmapOpenCV> colmapImages;
 	private static FeatureExtractionResult queryResult1;
 	private static FeatureExtractionResult queryResult2;
-	private static ColmapImageOpenCVFactory factory;
+	private static FactoryImage2DColmapOpenCV factory;
 
 	private static final int MAX_OBSERVATIONS_PER_IMAGE = 10;
 
@@ -57,7 +57,7 @@ class ImageMatchServiceTest {
 		List<Image2DColmap> images = reader.readImages2D(IMAGES_TXT.toPath());
 		System.out.println("Lecture images2D colmap done images.size "+images.size());
 		System.out.println("Lecture images2D colmap  openCV");
-		factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
+		factory = new FactoryImage2DColmapOpenCV(DATABASE_FILE, IMAGES_DIRECTORY);
 		System.out.println("Lecture images2D colmap  conversion openCv start");
 		colmapImages = factory.createAll(images, ALGORITHM);
 		System.out.println("Lecture images2D colmap  conversion openCv done");

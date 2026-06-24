@@ -20,7 +20,7 @@ import com.bg.bglocalize.image.ImageLoader;
 import com.bg.bglocalize.image.LoadedImage;
 import com.bg.bglocalize.opencv.OpenCvInitializer;
 
-public final class ColmapImageOpenCVFactory implements Closeable {
+public final class FactoryImage2DColmapOpenCV implements Closeable {
 
     private static final float DEFAULT_KEYPOINT_SIZE = 31.0f;
 
@@ -32,11 +32,11 @@ public final class ColmapImageOpenCVFactory implements Closeable {
     private final File imagesDirectory;
     private final ImageLoader imageLoader;
 
-    public ColmapImageOpenCVFactory(File databaseFile, File imagesDirectory) {
+    public FactoryImage2DColmapOpenCV(File databaseFile, File imagesDirectory) {
         this(new ColmapDatabaseReader(databaseFile), imagesDirectory, new FilesystemImageLoader());
     }
 
-    public ColmapImageOpenCVFactory(ColmapDatabaseReader databaseReader, File imagesDirectory, ImageLoader imageLoader) {
+    public FactoryImage2DColmapOpenCV(ColmapDatabaseReader databaseReader, File imagesDirectory, ImageLoader imageLoader) {
         this.databaseReader = Objects.requireNonNull(databaseReader, "databaseReader must not be null");
         this.imagesDirectory = Objects.requireNonNull(imagesDirectory, "imagesDirectory must not be null")
                 .getAbsoluteFile();

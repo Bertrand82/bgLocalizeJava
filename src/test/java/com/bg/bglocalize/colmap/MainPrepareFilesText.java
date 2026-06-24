@@ -25,7 +25,7 @@ public class MainPrepareFilesText {
     private static final File IMAGES_DIRECTORY = new File("data/BG/images");
 
     // ✅ Déclaration + initialisation de factory
-    private final ColmapImageOpenCVFactory factory ;
+    private final FactoryImage2DColmapOpenCV factory ;
     
     public MainPrepareFilesText(File projetDirectory) throws Exception {
     	this.projetDirectory = projetDirectory;
@@ -34,7 +34,7 @@ public class MainPrepareFilesText {
     	File sparseDir = new File(projetDirectory,"sparse");
     	File sparseDir_0 = new File(sparseDir,"0");
     	image2D_Txt = new File(sparseDir_0,"images.txt");
-    	factory  = new ColmapImageOpenCVFactory(dataBaseFile, imagesDirectory);
+    	factory  = new FactoryImage2DColmapOpenCV(dataBaseFile, imagesDirectory);
     }
 
     public static void main(String[] args) throws Exception {
@@ -59,7 +59,7 @@ public class MainPrepareFilesText {
         System.out.println("rocess2DOpenCv  done "+getDuree(timeStart));
         System.out.println("Generated: " + listColmapImageOpenCV.size()  +" / ");
         
-        ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
+        FactoryImage2DColmapOpen_Text factoryText = new FactoryImage2DColmapOpen_Text();
         dirOut.mkdirs();
         File tempFile = new File(dirOut,"images2DColmapOpenCV.txt");
         factoryText.write(listColmapImageOpenCV, tempFile.toPath());

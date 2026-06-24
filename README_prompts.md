@@ -258,5 +258,9 @@ En test , utiliser les 2 images (./data/BG.jpg et ./data/BG_1.jpg) , Apres avoir
 ## Lire et Ecrire dans un fichier ColmapImageOpenCv 
 Faire ColmapImageOpenCvFactoryText avec des methodes pour lire et écrire dans un fichier texte des ColmapImageOpenCv sur plusieurs lignes (Avec les meme convention pour l'objet ColmapImage utilisés dans  ColmapTextModelReader
 
+
+## Refactoriser com.bg.bglocalize.colmap.Image2DColmapOpenCV et supprimer les deprecated 
+
+
 ## Afficher 2 images dans un canvas , en swing, et visualiser sur chaque image une liste de descripteur opencv
 Créer 

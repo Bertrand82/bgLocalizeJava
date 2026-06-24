@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.bg.bglocalize.colmap.Image2DColmapOpenCV;
-import com.bg.bglocalize.colmap.ColmapImageOpenCvFactoryText;
+import com.bg.bglocalize.colmap.FactoryImage2DColmapOpen_Text;
 import com.bg.bglocalize.features.FeatureAlgorithm;
 import com.bg.bglocalize.features.FeatureExtractionResult;
 import com.bg.bglocalize.features.OpenCvFeatureExtractor;
@@ -45,7 +45,7 @@ class ImageMatchServiceFromTextTest {
         queryResult2 = extractor.extract(QUERY_IMAGE_2.getPath(), ALGORITHM);
 
         System.out.println("setUp  read ColmapImage2DOpenCV from text file");
-        ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
+        FactoryImage2DColmapOpen_Text factoryText = new FactoryImage2DColmapOpen_Text();
         colmapImages = factoryText.read(IMAGES2D_COLMAP_OPENCV_TXT);
         System.out.println("setUp  loaded " + colmapImages.size() + " ColmapImage2DOpenCV from text file");
     }

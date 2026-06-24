@@ -26,7 +26,7 @@ class ColmapImageOpenCVFactoryTest {
 
     private final ColmapTextModelReader reader = new ColmapTextModelReader();
 
-    private ColmapImageOpenCVFactory factory;
+    private FactoryImage2DColmapOpenCV factory;
 
     @BeforeAll
     static void initializeOpenCv() {
@@ -35,7 +35,7 @@ class ColmapImageOpenCVFactoryTest {
 
     @BeforeEach
     void setUp() {
-        factory = new ColmapImageOpenCVFactory(DATABASE_FILE, IMAGES_DIRECTORY);
+        factory = new FactoryImage2DColmapOpenCV(DATABASE_FILE, IMAGES_DIRECTORY);
     }
 
     @AfterEach

@@ -30,7 +30,7 @@ class ColmapImageOpenCvFactoryTextTest {
     private static final File IMAGES_TXT = new File("data/BG/sparse/0/images.txt");
     private static final int MAX_OBSERVATIONS = 8;
 
-    private final ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
+    private final FactoryImage2DColmapOpen_Text factoryText = new FactoryImage2DColmapOpen_Text();
 
     @BeforeAll
     static void initializeOpenCv() {
