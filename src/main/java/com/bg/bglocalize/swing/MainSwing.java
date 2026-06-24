@@ -120,6 +120,24 @@ public class MainSwing {
 
             @Override
             protected void done() {
+                try {
+                    get();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.error("OpenCV initialization interrupted", e);
+                    JOptionPane.showMessageDialog(null,
+                            "L'initialisation d'OpenCV a été interrompue.",
+                            "Erreur d'initialisation",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (ExecutionException e) {
+                    logger.error("OpenCV initialization failed", e.getCause());
+                    JOptionPane.showMessageDialog(null,
+                            "Impossible d'initialiser OpenCV :\n" + e.getCause().getMessage(),
+                            "Erreur d'initialisation",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 SwingUtilities.invokeLater(() -> new MainSwing().show());
             }
         };

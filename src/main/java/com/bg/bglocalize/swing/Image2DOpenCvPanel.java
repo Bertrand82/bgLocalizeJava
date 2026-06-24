@@ -27,6 +27,8 @@ public class Image2DOpenCvPanel extends JPanel {
     private Image2DOpenCV image2DOpenCV;
     private BufferedImage bufferedImage;
 
+    private static final Color FEATURE_OVERLAY_COLOR = new Color(0, 220, 0, 200);
+
     public Image2DOpenCvPanel() {
         setBackground(Color.DARK_GRAY);
         setPreferredSize(new Dimension(640, 480));
@@ -89,7 +91,7 @@ public class Image2DOpenCvPanel extends JPanel {
         }
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setColor(new Color(0, 220, 0, 200));
+        g2d.setColor(FEATURE_OVERLAY_COLOR);
         g2d.setStroke(new BasicStroke(1.5f));
 
         for (ColmapImageObservationOpenCV feature : features) {
