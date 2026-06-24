@@ -8,14 +8,14 @@ import com.bg.bglocalize.features.FeatureAlgorithm;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
-public final class ColmapImageOpenCV {  
+public final class ColmapImage2DOpenCV {  
 
     private final ColmapImage2D colmapImage;
     private final String imageName;
     private final FeatureAlgorithm algorithm;
     private final List<ColmapImageObservationOpenCV> observationFeaturesOpenCv;
 
-    public ColmapImageOpenCV(
+    public ColmapImage2DOpenCV(
             ColmapImage2D colmapImage,
             String imageName,
             FeatureAlgorithm algorithm,
@@ -53,7 +53,7 @@ public final class ColmapImageOpenCV {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ColmapImageOpenCV other)) {
+        if (!(obj instanceof ColmapImage2DOpenCV other)) {
             return false;
         }
         return Objects.equals(colmapImage, other.colmapImage)

@@ -17,9 +17,9 @@ import com.bg.bglocalize.opencv.OpenCvInitializer;
 
 class ColmapImageOpenCVTest {
 
-    private ColmapImageOpenCV left;
-    private ColmapImageOpenCV right;
-    private ColmapImageOpenCV different;
+    private ColmapImage2DOpenCV left;
+    private ColmapImage2DOpenCV right;
+    private ColmapImage2DOpenCV different;
 
     @BeforeAll
     static void initializeOpenCv() {
@@ -39,7 +39,7 @@ class ColmapImageOpenCVTest {
         ColmapImage2D colmapImage = new ColmapImage2D(1L, 0.965, 0.039, 0.258, -0.004,
                 2.712, -0.871, 2.945, 1L, "IMG_20260618_124549.jpg", List.of(observation));
 
-        left = new ColmapImageOpenCV(
+        left = new ColmapImage2DOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -47,7 +47,7 @@ class ColmapImageOpenCVTest {
                         observation,
                         new KeyPoint(174.3125f, 7.635f, 31.0f, 45.0f, 0.5f, 1, 0),
                         buildFloatDescriptor(4, 0.0f))));
-        right = new ColmapImageOpenCV(
+        right = new ColmapImage2DOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -55,7 +55,7 @@ class ColmapImageOpenCVTest {
                         observation,
                         new KeyPoint(174.3125f, 7.635f, 31.0f, 45.0f, 0.5f, 1, 0),
                         buildFloatDescriptor(4, 0.0f))));
-        different = new ColmapImageOpenCV(
+        different = new ColmapImage2DOpenCV(
                 colmapImage,
                 "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT,
@@ -81,7 +81,7 @@ class ColmapImageOpenCVTest {
         return descriptor;
     }
 
-    private static void release(ColmapImageOpenCV image) {
+    private static void release(ColmapImage2DOpenCV image) {
         if (image != null) {
             image.releaseDescriptors();
         }

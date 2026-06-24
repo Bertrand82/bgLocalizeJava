@@ -18,7 +18,7 @@ import org.opencv.core.Point;
 import com.bg.bglocalize.features.FeatureAlgorithm;
 
 /**
- * Reads and writes {@link ColmapImageOpenCV} objects to/from a text file.
+ * Reads and writes {@link ColmapImage2DOpenCV} objects to/from a text file.
  *
  * <p>File format — one image uses 2 + N lines (N = number of observations):
  * <pre>
@@ -34,7 +34,7 @@ public final class ColmapImageOpenCvFactoryText {
     /** Number of whitespace-separated fields on an image header line. */
     private static final int IMAGE_HEADER_FIELD_COUNT = 10;
 
-    public List<ColmapImageOpenCV> createAllFromColmapTextAndWrite(
+    public List<ColmapImage2DOpenCV> createAllFromColmapTextAndWrite(
             File databaseFile,
             File imagesDirectory,
             Path imagesTxtPath,
@@ -49,7 +49,7 @@ public final class ColmapImageOpenCvFactoryText {
         ColmapTextModelReader reader = new ColmapTextModelReader();
         List<ColmapImage2D> images = reader.readImages2D(imagesTxtPath);
 
-        List<ColmapImageOpenCV> colmapImagesOpenCV;
+        List<ColmapImage2DOpenCV> colmapImagesOpenCV;
         System.out.println("Lecture images2D colmap  conversion openCv start");
         try (ColmapImageOpenCVFactory factory = new ColmapImageOpenCVFactory(databaseFile, imagesDirectory)) {
             colmapImagesOpenCV = factory.createAll(images, algorithm);
@@ -59,13 +59,13 @@ public final class ColmapImageOpenCvFactoryText {
     }
 
     /**
-     * Writes a list of {@link ColmapImageOpenCV} to a text file.
+     * Writes a list of {@link ColmapImage2DOpenCV} to a text file.
      *
      * @param images     images to write
      * @param outputPath destination file path (created or overwritten)
      * @throws IOException if an I/O error occurs
      */
-    public void write(List<ColmapImageOpenCV> images, Path outputPath) throws IOException {
+    public void write(List<ColmapImage2DOpenCV> images, Path outputPath) throws IOException {
         Objects.requireNonNull(images, "images must not be null");
         Objects.requireNonNull(outputPath, "outputPath must not be null");
 
@@ -79,14 +79,14 @@ public final class ColmapImageOpenCvFactoryText {
             writer.write("#   POINTS2D_OPENCV[] as (X, Y, POINT3D_ID, KP_X, KP_Y, KP_SIZE, KP_ANGLE, KP_RESPONSE, KP_OCTAVE, KP_CLASS_ID, DESC_COLS, DESC_TYPE, DESC_VALUES...)");
             writer.newLine();
 
-            for (ColmapImageOpenCV image : images) {
+            for (ColmapImage2DOpenCV image : images) {
                 writeImage(writer, image);
             }
         }
     }
 
     /**
-     * Reads a list of {@link ColmapImageOpenCV} from a text file previously written by
+     * Reads a list of {@link ColmapImage2DOpenCV} from a text file previously written by
      * {@link #write(List, Path)}.
      *
      * @param path path to the text file
@@ -94,14 +94,14 @@ public final class ColmapImageOpenCvFactoryText {
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the file is missing or malformed
      */
-    public List<ColmapImageOpenCV> read(Path path) throws IOException {
+    public List<ColmapImage2DOpenCV> read(Path path) throws IOException {
         Objects.requireNonNull(path, "path must not be null");
         Path normalizedPath = path.toAbsolutePath().normalize();
         if (!Files.isRegularFile(normalizedPath)) {
             throw new IllegalArgumentException("File not found: " + normalizedPath);
         }
 
-        List<ColmapImageOpenCV> images = new ArrayList<>();
+        List<ColmapImage2DOpenCV> images = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(normalizedPath)) {
             String line;
             int lineNumber = 0;
@@ -182,14 +182,14 @@ public final class ColmapImageOpenCvFactoryText {
 
                 ColmapImage2D colmapImage = new ColmapImage2D(
                         imageId, qw, qx, qy, qz, tx, ty, tz, cameraId, name, colmapObservations);
-                images.add(new ColmapImageOpenCV(colmapImage, name, algorithm, observationFeatures));
+                images.add(new ColmapImage2DOpenCV(colmapImage, name, algorithm, observationFeatures));
             }
         }
 
         return List.copyOf(images);
     }
 
-    private static void writeImage(BufferedWriter writer, ColmapImageOpenCV image) throws IOException {
+    private static void writeImage(BufferedWriter writer, ColmapImage2DOpenCV image) throws IOException {
         ColmapImage2D ci = image.getColmapImage();
 
         // Line 1: same convention as ColmapTextModelReader images.txt header

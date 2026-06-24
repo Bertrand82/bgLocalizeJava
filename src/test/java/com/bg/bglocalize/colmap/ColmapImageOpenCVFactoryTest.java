@@ -47,7 +47,7 @@ class ColmapImageOpenCVFactoryTest {
     void shouldCreateOpenCvFeaturesForOneColmapImage() throws IOException, SQLException {
         ColmapImage2D colmapImage = firstImageWithLimitedObservations(8);
 
-        ColmapImageOpenCV result = factory.create(colmapImage, FeatureAlgorithm.SIFT);
+        ColmapImage2DOpenCV result = factory.create(colmapImage, FeatureAlgorithm.SIFT);
 
         try {
             assertEquals(colmapImage, result.getColmapImage());
@@ -73,7 +73,7 @@ class ColmapImageOpenCVFactoryTest {
                 .map(image -> copyWithLimitedObservations(image, 5))
                 .toList();
 
-        List<ColmapImageOpenCV> results = factory.createAll(images, FeatureAlgorithm.SIFT);
+        List<ColmapImage2DOpenCV> results = factory.createAll(images, FeatureAlgorithm.SIFT);
 
         try {
             assertEquals(2, results.size());
@@ -85,7 +85,7 @@ class ColmapImageOpenCVFactoryTest {
                     .flatMap(result -> result.getObservationFeatures().stream())
                     .allMatch(ColmapImageObservationOpenCV::hasDescriptor));
         } finally {
-            results.forEach(ColmapImageOpenCV::releaseDescriptors);
+            results.forEach(ColmapImage2DOpenCV::releaseDescriptors);
         }
     }
 

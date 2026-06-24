@@ -10,7 +10,7 @@ import org.opencv.core.MatOfDMatch;
 import org.opencv.features2d.DescriptorMatcher;
 
 import com.bg.bglocalize.colmap.ColmapImageObservationOpenCV;
-import com.bg.bglocalize.colmap.ColmapImageOpenCV;
+import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
 import com.bg.bglocalize.features.FeatureAlgorithm;
 import com.bg.bglocalize.features.FeatureExtractionResult;
 import com.bg.bglocalize.opencv.OpenCvInitializer;
@@ -22,14 +22,14 @@ public final class ImageMatchService {
 
     /**
      * Matches a single query {@link FeatureExtractionResult} against a single
-     * {@link ColmapImageOpenCV} target. Both must have been produced with the same
+     * {@link ColmapImage2DOpenCV} target. Both must have been produced with the same
      * {@link FeatureAlgorithm}.
      *
      * @param query  feature extraction result for the query image
      * @param target COLMAP image with OpenCV descriptors
      * @return the match result containing all raw descriptor matches
      */
-    public FeatureMatchResult match(FeatureExtractionResult query, ColmapImageOpenCV target) {
+    public FeatureMatchResult match(FeatureExtractionResult query, ColmapImage2DOpenCV target) {
         Objects.requireNonNull(query, "query must not be null");
         Objects.requireNonNull(target, "target must not be null");
         if (!query.getAlgorithm().equals(target.getAlgorithm())) {
@@ -61,23 +61,23 @@ public final class ImageMatchService {
 
     /**
      * Matches a query {@link FeatureExtractionResult} against each
-     * {@link ColmapImageOpenCV} in the provided list.
+     * {@link ColmapImage2DOpenCV} in the provided list.
      *
      * @param query   feature extraction result for the query image
      * @param targets list of COLMAP images with OpenCV descriptors
      * @return a list of match results, one per target, in the same order
      */
-    public List<FeatureMatchResult> matchAll(FeatureExtractionResult query, List<ColmapImageOpenCV> targets) {
+    public List<FeatureMatchResult> matchAll(FeatureExtractionResult query, List<ColmapImage2DOpenCV> targets) {
         Objects.requireNonNull(query, "query must not be null");
         Objects.requireNonNull(targets, "targets must not be null");
         List<FeatureMatchResult> results = new ArrayList<>(targets.size());
-        for (ColmapImageOpenCV target : targets) {
+        for (ColmapImage2DOpenCV target : targets) {
             results.add(match(query, target));
         }
         return List.copyOf(results);
     }
 
-    private static Mat buildDescriptorMatrix(ColmapImageOpenCV image) {
+    private static Mat buildDescriptorMatrix(ColmapImage2DOpenCV image) {
         List<ColmapImageObservationOpenCV> observations = image.getObservationFeatures();
         List<Mat> descriptorRows = new ArrayList<>(observations.size());
         for (ColmapImageObservationOpenCV obs : observations) {

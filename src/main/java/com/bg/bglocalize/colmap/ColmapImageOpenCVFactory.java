@@ -47,23 +47,23 @@ public final class ColmapImageOpenCVFactory implements Closeable {
         OpenCvInitializer.initialize();
     }
 
-    public ColmapImageOpenCV create(ColmapImage2D colmapImage) throws SQLException {
+    public ColmapImage2DOpenCV create(ColmapImage2D colmapImage) throws SQLException {
     	return create(colmapImage, FeatureAlgorithm.SIFT);
     }
-    public ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm) throws SQLException {
+    public ColmapImage2DOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm) throws SQLException {
     		        Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         Objects.requireNonNull(algorithm, "algorithm must not be null");
         return create(colmapImage, algorithm, algorithm.createExtractor());
     }
 
-    public List<ColmapImageOpenCV> createAll(List<ColmapImage2D> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
-        List<ColmapImageOpenCV> results = new ArrayList<>(colmapImages.size());
+    public List<ColmapImage2DOpenCV> createAll(List<ColmapImage2D> colmapImages, FeatureAlgorithm algorithm) throws SQLException {
+        List<ColmapImage2DOpenCV> results = new ArrayList<>(colmapImages.size());
         Feature2D extractor = algorithm.createExtractor();
 
         for (ColmapImage2D colmapImage : colmapImages) {
         	long timeStart = System.currentTimeMillis();
         	
-        	ColmapImageOpenCV cio = create(colmapImage, algorithm, extractor);
+        	ColmapImage2DOpenCV cio = create(colmapImage, algorithm, extractor);
         	System.out.print("createAll ProcessOpenCv : "+colmapImage.imageId()+" colmap. observations.size :"+colmapImage.observations().size()+" opencv.observtions.size :  "+cio.getObservationFeatures().size());
         	System.out.println(" done  :"+getDeltaTime(timeStart)+"  "+cio);
             results.add(cio);
@@ -76,7 +76,7 @@ public final class ColmapImageOpenCVFactory implements Closeable {
         databaseReader.close();
     }
 
-    private ColmapImageOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm, Feature2D extractor)
+    private ColmapImage2DOpenCV create(ColmapImage2D colmapImage, FeatureAlgorithm algorithm, Feature2D extractor)
             throws SQLException {
         String imageName = databaseReader.findNameByImageId(colmapImage.imageId());
         if (imageName == null || imageName.isBlank()) {
@@ -90,7 +90,7 @@ public final class ColmapImageOpenCVFactory implements Closeable {
                     loadedImage,
                     colmapImage.observations(),
                     extractor);
-            return new ColmapImageOpenCV(colmapImage, imageName, algorithm, observationFeatures);
+            return new ColmapImage2DOpenCV(colmapImage, imageName, algorithm, observationFeatures);
         } finally {
             loadedImage.getImage().release();
         }

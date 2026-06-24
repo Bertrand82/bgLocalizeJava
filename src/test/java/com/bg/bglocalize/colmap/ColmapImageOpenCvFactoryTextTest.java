@@ -46,16 +46,16 @@ class ColmapImageOpenCvFactoryTextTest {
         ColmapImageObservationOpenCV obsFeature = new ColmapImageObservationOpenCV(obs, kp, desc);
         ColmapImage2D ci = new ColmapImage2D(1L, 0.965, 0.039, 0.258, -0.004, 2.712, -0.871, 2.945, 1L,
                 "IMG_20260618_124549.jpg", List.of(obs));
-        ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "IMG_20260618_124549.jpg",
+        ColmapImage2DOpenCV original = new ColmapImage2DOpenCV(ci, "IMG_20260618_124549.jpg",
                 FeatureAlgorithm.SIFT, List.of(obsFeature));
 
         Path tempFile = Files.createTempFile("colmap_opencv_single_", ".txt");
         try {
             factoryText.write(List.of(original), tempFile);
-            List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
+            List<ColmapImage2DOpenCV> loaded = factoryText.read(tempFile);
 
             assertEquals(1, loaded.size());
-            ColmapImageOpenCV loadedImage = loaded.get(0);
+            ColmapImage2DOpenCV loadedImage = loaded.get(0);
 
             assertColmapImageEquals(ci, loadedImage.getColmapImage());
             assertEquals(FeatureAlgorithm.SIFT, loadedImage.getAlgorithm());
@@ -91,25 +91,25 @@ class ColmapImageOpenCvFactoryTextTest {
         ColmapImage2D ci2 = new ColmapImage2D(2L, 0.8, 0.2, 0.1, 0.0, 4.0, 5.0, 6.0, 1L,
                 "image2.jpg", List.of(obs2a, obs2b));
 
-        ColmapImageOpenCV image1 = new ColmapImageOpenCV(ci1, "image1.jpg", FeatureAlgorithm.SIFT,
+        ColmapImage2DOpenCV image1 = new ColmapImage2DOpenCV(ci1, "image1.jpg", FeatureAlgorithm.SIFT,
                 List.of(new ColmapImageObservationOpenCV(obs1, kp1, desc1)));
-        ColmapImageOpenCV image2 = new ColmapImageOpenCV(ci2, "image2.jpg", FeatureAlgorithm.SIFT,
+        ColmapImage2DOpenCV image2 = new ColmapImage2DOpenCV(ci2, "image2.jpg", FeatureAlgorithm.SIFT,
                 List.of(new ColmapImageObservationOpenCV(obs2a, kp2a, desc2a),
                         new ColmapImageObservationOpenCV(obs2b, kp2b, desc2b)));
 
         Path tempFile = Files.createTempFile("colmap_opencv_multi_", ".txt");
         try {
             factoryText.write(List.of(image1, image2), tempFile);
-            List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
+            List<ColmapImage2DOpenCV> loaded = factoryText.read(tempFile);
 
             assertEquals(2, loaded.size());
 
-            ColmapImageOpenCV loaded1 = loaded.get(0);
+            ColmapImage2DOpenCV loaded1 = loaded.get(0);
             assertEquals(1L, loaded1.getColmapImage().imageId());
             assertEquals(1, loaded1.getObservationFeatures().size());
             assertEquals(obs1, loaded1.getObservationFeatures().get(0).getObservation());
 
-            ColmapImageOpenCV loaded2 = loaded.get(1);
+            ColmapImage2DOpenCV loaded2 = loaded.get(1);
             assertEquals(2L, loaded2.getColmapImage().imageId());
             assertEquals(2, loaded2.getObservationFeatures().size());
             assertEquals(obs2a, loaded2.getObservationFeatures().get(0).getObservation());
@@ -130,13 +130,13 @@ class ColmapImageOpenCvFactoryTextTest {
         ColmapImageObservationOpenCV obsFeature = new ColmapImageObservationOpenCV(obs, kp, emptyDesc);
         ColmapImage2D ci = new ColmapImage2D(3L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
                 "empty.jpg", List.of(obs));
-        ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "empty.jpg",
+        ColmapImage2DOpenCV original = new ColmapImage2DOpenCV(ci, "empty.jpg",
                 FeatureAlgorithm.ORB, List.of(obsFeature));
 
         Path tempFile = Files.createTempFile("colmap_opencv_empty_desc_", ".txt");
         try {
             factoryText.write(List.of(original), tempFile);
-            List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
+            List<ColmapImage2DOpenCV> loaded = factoryText.read(tempFile);
 
             assertEquals(1, loaded.size());
             ColmapImageObservationOpenCV loadedObs = loaded.get(0).getObservationFeatures().get(0);
@@ -150,13 +150,13 @@ class ColmapImageOpenCvFactoryTextTest {
     void shouldWriteAndReadBackImageWithNoObservations() throws IOException {
         ColmapImage2D ci = new ColmapImage2D(4L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1L,
                 "noobs.jpg", List.of());
-        ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "noobs.jpg",
+        ColmapImage2DOpenCV original = new ColmapImage2DOpenCV(ci, "noobs.jpg",
                 FeatureAlgorithm.SIFT, List.of());
 
         Path tempFile = Files.createTempFile("colmap_opencv_noobs_", ".txt");
         try {
             factoryText.write(List.of(original), tempFile);
-            List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
+            List<ColmapImage2DOpenCV> loaded = factoryText.read(tempFile);
 
             assertEquals(1, loaded.size());
             assertEquals(0, loaded.get(0).getObservationFeatures().size());
@@ -177,13 +177,13 @@ class ColmapImageOpenCvFactoryTextTest {
                 0.2585553653980231, -0.0044936761960093895,
                 2.7123899170228367, -0.87102923280167643, 2.9455825074265096,
                 5L, "my_image.jpg", List.of(obs));
-        ColmapImageOpenCV original = new ColmapImageOpenCV(ci, "my_image.jpg",
+        ColmapImage2DOpenCV original = new ColmapImage2DOpenCV(ci, "my_image.jpg",
                 FeatureAlgorithm.AKAZE, List.of(new ColmapImageObservationOpenCV(obs, kp, desc)));
 
         Path tempFile = Files.createTempFile("colmap_opencv_fields_", ".txt");
         try {
             factoryText.write(List.of(original), tempFile);
-            List<ColmapImageOpenCV> loaded = factoryText.read(tempFile);
+            List<ColmapImage2DOpenCV> loaded = factoryText.read(tempFile);
 
             ColmapImage2D loadedCi = loaded.get(0).getColmapImage();
             assertEquals(99L, loadedCi.imageId());
@@ -212,8 +212,8 @@ class ColmapImageOpenCvFactoryTextTest {
     void shouldCreateOpenCvFromColmapTextAndWriteToOutputFile() throws IOException, SQLException {
         Path oneImageTxt = Files.createTempFile("colmap_images_one_", ".txt");
         Path outputTxt = Files.createTempFile("colmap_opencv_from_text_", ".txt");
-        List<ColmapImageOpenCV> created = List.of();
-        List<ColmapImageOpenCV> reloaded = List.of();
+        List<ColmapImage2DOpenCV> created = List.of();
+        List<ColmapImage2DOpenCV> reloaded = List.of();
         try {
             writeFirstImageEntry(IMAGES_TXT.toPath(), oneImageTxt);
 
@@ -319,7 +319,7 @@ class ColmapImageOpenCvFactoryTextTest {
         assertArrayEquals(expectedValues, actualValues, 1e-5f);
     }
 
-    private static void releaseDescriptors(List<ColmapImageOpenCV> images) {
-        images.forEach(ColmapImageOpenCV::releaseDescriptors);
+    private static void releaseDescriptors(List<ColmapImage2DOpenCV> images) {
+        images.forEach(ColmapImage2DOpenCV::releaseDescriptors);
     }
 }

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.bg.bglocalize.colmap.ColmapImage2D;
 import com.bg.bglocalize.colmap.ColmapImageObservation;
-import com.bg.bglocalize.colmap.ColmapImageOpenCV;
+import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
 import com.bg.bglocalize.colmap.ColmapImageOpenCVFactory;
 import com.bg.bglocalize.colmap.ColmapTextModelReader;
 import com.bg.bglocalize.features.FeatureAlgorithm;
@@ -35,7 +35,7 @@ class ImageMatchServiceTest {
 
 	private static final FeatureAlgorithm ALGORITHM = FeatureAlgorithm.SIFT;
 
-	private static List<ColmapImageOpenCV> colmapImages;
+	private static List<ColmapImage2DOpenCV> colmapImages;
 	private static FeatureExtractionResult queryResult1;
 	private static FeatureExtractionResult queryResult2;
 	private static ColmapImageOpenCVFactory factory;
@@ -95,7 +95,7 @@ class ImageMatchServiceTest {
 		shouldMatchQueryImageAgainstAllColmapImages(queryResult2,"BG_2",colmapImages);
 	}
 
-	void shouldMatchQueryImageAgainstAllColmapImages(FeatureExtractionResult queryResult1, String comment, List<ColmapImageOpenCV> colmapImages ) {
+	void shouldMatchQueryImageAgainstAllColmapImages(FeatureExtractionResult queryResult1, String comment, List<ColmapImage2DOpenCV> colmapImages ) {
 		ImageMatchService service = new ImageMatchService();
 
 		List<FeatureMatchResult> results = service.matchAll(queryResult1, colmapImages);
@@ -122,7 +122,7 @@ class ImageMatchServiceTest {
 	@Test
 	void shouldMatchSingleQueryAgainstFirstColmapImage() {
 		ImageMatchService service = new ImageMatchService();
-		ColmapImageOpenCV firstTarget = colmapImages.get(0);
+		ColmapImage2DOpenCV firstTarget = colmapImages.get(0);
 
 		FeatureMatchResult result = service.match(queryResult1, firstTarget);
 
@@ -138,7 +138,7 @@ class ImageMatchServiceTest {
 		OpenCvFeatureExtractor extractor = new OpenCvFeatureExtractor();
 		FeatureExtractionResult orbResult = extractor.extract(QUERY_IMAGE_1.getPath(), FeatureAlgorithm.ORB);
 		ImageMatchService service = new ImageMatchService();
-		ColmapImageOpenCV siftTarget = colmapImages.get(0);
+		ColmapImage2DOpenCV siftTarget = colmapImages.get(0);
 
 		try {
 			assertThrows(IllegalArgumentException.class, () -> service.match(orbResult, siftTarget));

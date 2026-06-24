@@ -5,16 +5,16 @@ import java.util.Objects;
 
 import org.opencv.core.DMatch;
 
-import com.bg.bglocalize.colmap.ColmapImageOpenCV;
+import com.bg.bglocalize.colmap.ColmapImage2DOpenCV;
 import com.bg.bglocalize.features.FeatureExtractionResult;
 
 public final class FeatureMatchResult {
 
     private final FeatureExtractionResult query;
-    private final ColmapImageOpenCV target;
+    private final ColmapImage2DOpenCV target;
     private final List<DMatch> matches;
 
-    public FeatureMatchResult(FeatureExtractionResult query, ColmapImageOpenCV target, List<DMatch> matches) {
+    public FeatureMatchResult(FeatureExtractionResult query, ColmapImage2DOpenCV target, List<DMatch> matches) {
         this.query = Objects.requireNonNull(query, "query must not be null");
         this.target = Objects.requireNonNull(target, "target must not be null");
         this.matches = List.copyOf(Objects.requireNonNull(matches, "matches must not be null"));
@@ -24,7 +24,7 @@ public final class FeatureMatchResult {
         return query;
     }
 
-    public ColmapImageOpenCV getTarget() {
+    public ColmapImage2DOpenCV getTarget() {
         return target;
     }
 

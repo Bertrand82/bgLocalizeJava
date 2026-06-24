@@ -55,16 +55,16 @@ public class MainPrepareFilesText {
         System.out.println("Read2D done "+getDuree(timeStart)+"   images.size : "+images.size());
         
         System.out.println("Process2DOpenCv start ");
-        List<ColmapImageOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
+        List<ColmapImage2DOpenCV> listColmapImageOpenCV = factory.createAll(images, FeatureAlgorithm.SIFT);
         System.out.println("rocess2DOpenCv  done "+getDuree(timeStart));
         System.out.println("Generated: " + listColmapImageOpenCV.size()  +" / ");
         
         ColmapImageOpenCvFactoryText factoryText = new ColmapImageOpenCvFactoryText();
         dirOut.mkdirs();
-        File tempFile = new File(dirOut,"imagesOpenCV.txt");
+        File tempFile = new File(dirOut,"images2DColmapOpenCV.txt");
         factoryText.write(listColmapImageOpenCV, tempFile.toPath());
         System.out.println(" factoryText.write  done "+getDuree(timeStart)+"  "+tempFile.toPath());
-        List<ColmapImageOpenCV>  listRead = factoryText.read(tempFile.toPath());
+        List<ColmapImage2DOpenCV>  listRead = factoryText.read(tempFile.toPath());
         System.out.println(" factoryText.read  done "+getDuree(timeStart)+"  "+tempFile.toPath());
         System.out.println("equals "+listRead.equals(listColmapImageOpenCV));
     }
