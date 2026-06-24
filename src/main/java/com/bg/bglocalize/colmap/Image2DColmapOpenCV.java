@@ -14,10 +14,6 @@ public final class Image2DColmapOpenCV {
     private final Image2DOpenCV imageOpenCV;
    
     private final String imageName;
-    @Deprecated
-    private final FeatureAlgorithm algorithm;
-    @Deprecated
-    private final List<ColmapImageObservationOpenCV> observationFeaturesOpenCv;
 
     public Image2DColmapOpenCV(
             Image2DColmap colmapImage,
@@ -26,8 +22,6 @@ public final class Image2DColmapOpenCV {
             List<ColmapImageObservationOpenCV> observationFeatures) {
         this.imageColmap = Objects.requireNonNull(colmapImage, "colmapImage must not be null");
         this.imageName = Objects.requireNonNull(imageName, "imageName must not be null");
-        this.algorithm = Objects.requireNonNull(algorithm, "algorithm must not be null");
-        this.observationFeaturesOpenCv = observationFeatures;
         this.imageOpenCV= new Image2DOpenCV(imageName, algorithm, observationFeatures);
     }
 
@@ -40,15 +34,15 @@ public final class Image2DColmapOpenCV {
     }
 
     public FeatureAlgorithm getAlgorithm() {
-        return algorithm;
+        return imageOpenCV.getAlgorithm();
     }
 
     public List<ColmapImageObservationOpenCV> getObservationFeatures() {
-        return observationFeaturesOpenCv;
+        return imageOpenCV.getObservationFeatures();
     }
 
     public void releaseDescriptors() {
-        for (ColmapImageObservationOpenCV observationFeature : observationFeaturesOpenCv) {
+        for (ColmapImageObservationOpenCV observationFeature : getObservationFeatures()) {
             observationFeature.getDescriptor().release();
         }
     }
@@ -63,25 +57,26 @@ public final class Image2DColmapOpenCV {
         }
         return Objects.equals(imageColmap, other.imageColmap)
                 && Objects.equals(imageName, other.imageName)
-                && Objects.equals(imageOpenCV, other.imageOpenCV);
+                && getAlgorithm() == other.getAlgorithm()
+                && observationFeaturesEquals(getObservationFeatures(), other.getObservationFeatures());
     }
 
 
 
 	@Override
 	public String toString() {
-		return "ColmapImageOpenCV [colmapImage=" + imageColmap.imageId() + ", imageName=" + imageName + ", algorithm=" + algorithm
-				+ ", observationFeatures.size=" + observationFeaturesOpenCv.size()+" colmapImage.observations.size= " +imageColmap.observations().size()+ "]";
+		return "ColmapImageOpenCV [colmapImage=" + imageColmap.imageId() + ", imageName=" + imageName + ", algorithm=" + getAlgorithm()
+				+ ", observationFeatures.size=" + getObservationFeatures().size()+" colmapImage.observations.size= " +imageColmap.observations().size()+ "]";
 	}
 
 	public List<ColmapImageObservationOpenCV> getObservationFeaturesOpenCv() {
-		return observationFeaturesOpenCv;
+		return getObservationFeatures();
 	}
 
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(algorithm, imageColmap, imageName, observationFeaturesOpenCv);
+		return Objects.hash(imageColmap, imageName, getAlgorithm(), observationFeaturesHashCode(getObservationFeatures()));
 	}
 
 	
