@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import com.bg.bglocalize.features.FeatureAlgorithm;
 
-public class Image2DOpenCV {
+public final class Image2DOpenCV {
 
     
     private final String imageName;
@@ -19,5 +19,17 @@ public class Image2DOpenCV {
         this.imageName = Objects.requireNonNull(imageName, "imageName must not be null");
         this.algorithm = Objects.requireNonNull(algorithm, "algorithm must not be null");
         this.observationFeaturesOpenCv = observationFeatures;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public FeatureAlgorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public List<ColmapImageObservationOpenCV> getObservationFeatures() {
+        return observationFeaturesOpenCv;
     }
 }
