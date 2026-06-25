@@ -130,8 +130,8 @@ public class Image2DOpenCvPanel extends JPanel {
             return;
         }
 
-        float minDistance = Float.POSITIVE_INFINITY;
-        float maxDistance = Float.NEGATIVE_INFINITY;
+        float minDistance = topMatches.get(0).distance;
+        float maxDistance = topMatches.get(0).distance;
         for (DMatch match : topMatches) {
             minDistance = Math.min(minDistance, match.distance);
             maxDistance = Math.max(maxDistance, match.distance);
