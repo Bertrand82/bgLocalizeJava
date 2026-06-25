@@ -131,11 +131,7 @@ public class Image2DOpenCvPanel extends JPanel {
         }
 
         float minDistance = topMatches.get(0).distance;
-        float maxDistance = topMatches.get(0).distance;
-        for (DMatch match : topMatches) {
-            minDistance = Math.min(minDistance, match.distance);
-            maxDistance = Math.max(maxDistance, match.distance);
-        }
+        float maxDistance = topMatches.get(topMatches.size() - 1).distance;
 
         String label = String.format("Matchs: %d | distance: %.2f - %.2f", topMatches.size(), minDistance, maxDistance);
         g2d.setColor(new Color(0, 0, 0, 170));
