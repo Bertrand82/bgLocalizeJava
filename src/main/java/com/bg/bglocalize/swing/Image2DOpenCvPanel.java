@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.opencv.core.DMatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class Image2DOpenCvPanel extends JPanel {
     private Image2DOpenCV image2DOpenCV;
     private BufferedImage bufferedImage;
     private boolean showObservations = true;
+    private List<DMatch> topMatches;
 
     private static final Color FEATURE_OVERLAY_COLOR = new Color(0, 220, 0, 200);
 
@@ -37,6 +39,15 @@ public class Image2DOpenCvPanel extends JPanel {
 
     public void setShowObservations(boolean showObservations) {
         this.showObservations = showObservations;
+        repaint();
+    }
+
+    public Image2DOpenCV getImage2DOpenCV() {
+        return image2DOpenCV;
+    }
+
+    public void setTopMatches(List<DMatch> topMatches) {
+        this.topMatches = topMatches;
         repaint();
     }
 
@@ -77,6 +88,7 @@ public class Image2DOpenCvPanel extends JPanel {
         if (showObservations) {
             drawFeatures(g2d, scale, offsetX, offsetY);
         }
+        drawMatchInfo(g2d);
     }
 
     private void drawPlaceholder(Graphics g) {
@@ -111,5 +123,20 @@ public class Image2DOpenCvPanel extends JPanel {
             int diameter = (int) Math.round(radius * 2);
             g2d.drawOval(cx, cy, diameter, diameter);
         }
+    }
+
+    private void drawMatchInfo(Graphics2D g2d) {
+        if (topMatches == null || topMatches.isEmpty()) {
+            return;
+        }
+
+        float minDistance = topMatches.get(0).distance;
+        float maxDistance = topMatches.get(topMatches.size() - 1).distance;
+
+        String label = String.format("Matchs: %d | distance: %.2f - %.2f", topMatches.size(), minDistance, maxDistance);
+        g2d.setColor(new Color(0, 0, 0, 170));
+        g2d.fillRoundRect(10, 10, g2d.getFontMetrics().stringWidth(label) + 14, 24, 8, 8);
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(label, 17, 27);
     }
 }
