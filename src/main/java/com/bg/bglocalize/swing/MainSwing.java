@@ -36,6 +36,7 @@ import com.bg.bglocalize.opencv.OpenCvInitializer;
 public class MainSwing {
 
     private static final Logger logger = LoggerFactory.getLogger(MainSwing.class);
+    private static final int TOP_MATCHES_COUNT = 30;
 
     private final Image2DOpenCvPanel panel1 = new Image2DOpenCvPanel();
     private final Image2DOpenCvPanel panel2 = new Image2DOpenCvPanel();
@@ -59,7 +60,8 @@ public class MainSwing {
             panel1.setShowObservations(selected);
             panel2.setShowObservations(selected);
         });
-        JCheckBox showTopMatchesCheckBox = new JCheckBox("Afficher 30 premiers matchs", false);
+        JCheckBox showTopMatchesCheckBox = new JCheckBox(
+                "Afficher " + TOP_MATCHES_COUNT + " premiers matchs", false);
         showTopMatchesCheckBox.addActionListener(e -> updateTopMatchesDisplay(showTopMatchesCheckBox.isSelected()));
         JButton matchImagesButton = new JButton("Matcher les images");
         matchImagesButton.addActionListener(e -> matchImages(showTopMatchesCheckBox, matchImagesButton));
@@ -188,7 +190,7 @@ public class MainSwing {
         }
         List<org.opencv.core.DMatch> bestMatches = matchResult.getMatches().stream()
                 .sorted(Comparator.comparingDouble(match -> match.distance))
-                .limit(30)
+                .limit(TOP_MATCHES_COUNT)
                 .toList();
         panel1.setTopMatches(bestMatches);
         panel2.setTopMatches(bestMatches);
