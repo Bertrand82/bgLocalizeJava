@@ -25,9 +25,10 @@ import com.bg.bglocalize.opencv.OpenCvInitializer;
 public final class ImageMatchService {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageMatchService.class);
-
-    public ImageMatchService() {
-    }
+    private static final long SYNTHETIC_COLMAP_ID = 0L;
+    private static final int SYNTHETIC_IMAGE_DIMENSION = 0;
+    private static final double SYNTHETIC_QUATERNION_W = 1.0;
+    private static final double SYNTHETIC_ZERO_VALUE = 0.0;
 
     /**
      * Matches two {@link Image2DOpenCV} instances using their precomputed descriptors.
@@ -119,12 +120,18 @@ public final class ImageMatchService {
                 .map(ColmapImageObservationOpenCV::getKeyPoint)
                 .toList();
         keypoints.fromList(keyPointList);
-        Mat descriptors = buildDescriptorMatrix(image);
+        Mat descriptors;
+        try {
+            descriptors = buildDescriptorMatrix(image);
+        } catch (RuntimeException exception) {
+            keypoints.release();
+            throw exception;
+        }
         return new FeatureExtractionResult(
                 image.getImageName(),
                 image.getImageName(),
-                0,
-                0,
+                SYNTHETIC_IMAGE_DIMENSION,
+                SYNTHETIC_IMAGE_DIMENSION,
                 image.getAlgorithm(),
                 keypoints,
                 descriptors);
@@ -134,10 +141,25 @@ public final class ImageMatchService {
         List<ColmapImageObservation> observations = image.getObservationFeatures().stream()
                 .map(ColmapImageObservationOpenCV::getObservation)
                 .toList();
-        Image2DColmap syntheticColmapImage = new Image2DColmap(0L, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0L,
-                image.getImageName(), observations);
+        Image2DColmap syntheticColmapImage = createSyntheticColmapImage(image.getImageName(), observations);
         return new Image2DColmapOpenCV(syntheticColmapImage, image.getImageName(), image.getAlgorithm(),
                 image.getObservationFeatures());
+    }
+
+    private static Image2DColmap createSyntheticColmapImage(String imageName,
+            List<ColmapImageObservation> observations) {
+        return new Image2DColmap(
+                SYNTHETIC_COLMAP_ID,
+                SYNTHETIC_QUATERNION_W,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_ZERO_VALUE,
+                SYNTHETIC_COLMAP_ID,
+                imageName,
+                observations);
     }
 
     private static Mat buildDescriptorMatrix(Image2DColmapOpenCV image) {
